@@ -20,12 +20,14 @@ fn main(req: Request) -> Result<Response, Error> {
 
     let http_methods_paths = ["/delete", "/get", "/patch", "/post", "/put"];
     if http_methods_paths.contains(&req.get_path()) {
-        let h: HashMap<&str, &str>= req.get_headers()
+        let headers: HashMap<&str, &str>= req.get_headers()
             .map(|m| (m.0.as_str(), m.1.to_str().unwrap()))
             .collect();
 
         let resp = json!({
-            "headers": h
+            "headers": headers,
+            "origin": req.get_client_ip_addr(),
+            "url": req.get_url_str()
         });
 
         return Ok(Response::from_status(StatusCode::OK)
