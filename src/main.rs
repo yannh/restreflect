@@ -35,5 +35,26 @@ fn main(req: Request) -> Result<Response, Error> {
             .with_body(resp.to_string()))
     }
 
+    if req.get_path() == "/user-agent" {
+        let ua = req.get_header("user-agent").unwrap().to_str().unwrap();
+        let resp = json!({
+            "user-agent": ua
+        });
+
+        return Ok(Response::from_status(StatusCode::OK)
+            .with_content_type(mime::TEXT_HTML_UTF_8)
+            .with_body(resp.to_string()))
+    }
+
+    if req.get_path() == "/ip" {
+        let resp = json!({
+            "ip": req.get_client_ip_addr()
+        });
+
+        return Ok(Response::from_status(StatusCode::OK)
+            .with_content_type(mime::TEXT_HTML_UTF_8)
+            .with_body(resp.to_string()))
+    }
+
     return not_found
 }
