@@ -1,68 +1,37 @@
-//! Default Compute@Edge template program.
-
-use fastly::http::{header, Method, StatusCode};
+use std::collections::HashMap;
+use fastly::http::{HeaderName, HeaderValue, StatusCode};
 use fastly::{mime, Error, Request, Response};
-
-/// The entry point for your application.
-///
-/// This function is triggered when your service receives a client request. It could be used to
-/// route based on the request properties (such as method or path), send the request to a backend,
-/// make completely new requests, and/or generate synthetic responses.
-///
-/// If `main` returns an error, a 500 error response will be delivered to the client.
+use regex::Regex;
+use serde_json::json;
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
-    // Filter request methods...
-    match req.get_method() {
-        // Allow GET and HEAD requests.
-        &Method::GET | &Method::HEAD => (),
+    let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
+        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_body("E_NOTFOUND"));
 
-        // Deny anything else.
-        _ => {
-            return Ok(Response::from_status(StatusCode::METHOD_NOT_ALLOWED)
-                .with_header(header::ALLOW, "GET, HEAD")
-                .with_body_text_plain("This method is not allowed\n"))
-        }
-    };
-
-    // Pattern match on the path...
-    match req.get_path() {
-        // If request is to the `/` path...
-        "/" => {
-            // Below are some common patterns for Compute@Edge services using Rust.
-            // Head to https://developer.fastly.com/learning/compute/rust/ to discover more.
-
-            // Create a new request.
-            // let mut bereq = Request::get("http://httpbin.org/headers")
-            //     .with_header("X-Custom-Header", "Welcome to Compute@Edge!")
-            //     .with_ttl(60);
-
-            // Add request headers.
-            // bereq.set_header(
-            //     "X-Another-Custom-Header",
-            //     "Recommended reading: https://developer.fastly.com/learning/compute",
-            // );
-
-            // Forward the request to a backend.
-            // let mut beresp = bereq.send("backend_name")?;
-
-            // Remove response headers.
-            // beresp.remove_header("X-Another-Custom-Header");
-
-            // Log to a Fastly endpoint.
-            // use std::io::Write;
-            // let mut endpoint = fastly::log::Endpoint::from_name("my_endpoint");
-            // writeln!(endpoint, "Hello from the edge!").unwrap();
-
-            // Send a default synthetic response.
-            Ok(Response::from_status(StatusCode::OK)
-                .with_content_type(mime::TEXT_HTML_UTF_8)
-                .with_body(include_str!("welcome-to-compute@edge.html")))
-        }
-
-        // Catch all other requests and return a 404.
-        _ => Ok(Response::from_status(StatusCode::NOT_FOUND)
-            .with_body_text_plain("The page you requested could not be found\n")),
+    let caps = Regex::new(r"/status/(\d{3})$").unwrap()
+        .captures(req.get_path());
+    if caps.is_some() {
+       let status = caps.unwrap().get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap());
+       return Ok(Response::from_status(StatusCode::from_u16(status).unwrap())
+           .with_content_type(mime::TEXT_HTML_UTF_8))
     }
+
+    let http_methods_paths = ["/delete", "/get", "/patch", "/post", "/put"];
+    if http_methods_paths.contains(&req.get_path()) {
+        let h: HashMap<&str, &str>= req.get_headers()
+            .map(|m| (m.0.as_str(), m.1.to_str().unwrap()))
+            .collect();
+
+        let resp = json!({
+            "headers": h
+        });
+
+        return Ok(Response::from_status(StatusCode::OK)
+            .with_content_type(mime::TEXT_HTML_UTF_8)
+            .with_body(resp.to_string()))
+    }
+
+    return not_found
 }
