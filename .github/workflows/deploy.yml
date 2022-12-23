@@ -15,7 +15,7 @@ jobs:
           toolchain: 1.66.0
           target: wasm32-wasi # WebAssembly target
 
-      - name: Install xmllint
+      - name: Install wasm-strip
         run: sudo apt install -y wabt
 
       - name: Deploy to Compute@Edge
