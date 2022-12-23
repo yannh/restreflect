@@ -15,6 +15,9 @@ jobs:
           toolchain: 1.66.0
           target: wasm32-wasi # WebAssembly target
 
+      - name: Install xmllint
+        run: sudo apt install -y wabt
+
       - name: Deploy to Compute@Edge
         uses: fastly/compute-actions@v4
         env:
