@@ -10,7 +10,7 @@ use utoipa::OpenApi;
 
 
 #[derive(OpenApi)]
-#[openapi(paths(rr_http_statuses, rr_delete, rr_get, rr_put, rr_post, rr_patch))]
+#[openapi(paths(rr_http_statuses, rr_delete, rr_get, rr_put, rr_post, rr_patch, rr_user_agent, rr_ip))]
 struct ApiDoc;
 
 #[derive(RustEmbed)]
@@ -190,6 +190,15 @@ fn rr_index(req: Request) -> Result<Response, Error> {
     }
 }
 
+
+#[utoipa::path(
+    patch,
+    path = "/user-agent",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The request’s User-Agent header.", content_type = "application/json")
+    )
+)]
 fn rr_user_agent(req: Request) -> Result<Response, Error> {
     let ua = req.get_header("user-agent").unwrap().to_str().unwrap();
     let resp = json!({
@@ -201,6 +210,14 @@ fn rr_user_agent(req: Request) -> Result<Response, Error> {
         .with_body(to_string_pretty(&resp).unwrap()))
 }
 
+#[utoipa::path(
+    patch,
+    path = "/ip",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The Requester's IP address", content_type = "application/json")
+    )
+)]
 fn rr_ip(req: Request) -> Result<Response, Error> {
     let resp = json!({
             "ip": req.get_client_ip_addr()
