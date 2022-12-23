@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 use std::path::Path;
-use fastly::http::{StatusCode};
+use fastly::http::{Method, StatusCode};
 use fastly::{Error, mime, Request, Response};
 use regex::{Regex};
 use serde_json::json;
@@ -122,9 +122,9 @@ fn rr_ip(req: Request) -> Result<Response, Error> {
         .with_body(resp.to_string()))
 }
 
-fn route(routes:Vec<(Regex, fn(Request) -> Result<Response, Error>)>, req: Request) -> Result<Response, Error>{
-   for (r, cb) in routes {
-       if r.is_match(req.get_path()) {
+fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, req: Request) -> Result<Response, Error>{
+   for (method, r, cb) in routes {
+       if method == req.get_method() && r.is_match(req.get_path()) {
            return cb(req)
        }
    }
@@ -135,21 +135,21 @@ fn route(routes:Vec<(Regex, fn(Request) -> Result<Response, Error>)>, req: Reque
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
-    let mut routes: Vec<(Regex, fn(Request) -> Result<Response, Error>)> = vec![
-        (Regex::new(r"/$").unwrap(), rr_index),
-        (Regex::new(r"/index$").unwrap(), rr_index),
-        (Regex::new(r"/index.html$").unwrap(), rr_index),
-        (Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
-        (Regex::new(r"^/get$").unwrap(), rr_http_methods),
-        (Regex::new(r"^/patch$").unwrap(), rr_http_methods),
-        (Regex::new(r"^/post$").unwrap(), rr_http_methods),
-        (Regex::new(r"^/put$").unwrap(), rr_http_methods),
-        (Regex::new(r"^/image/jpeg$").unwrap(), rr_http_images),
-        (Regex::new(r"^/image/png$").unwrap(), rr_http_images),
-        (Regex::new(r"^/image/svg$").unwrap(), rr_http_images),
-        (Regex::new(r"^/image/webp$").unwrap(), rr_http_images),
-        (Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
-        (Regex::new(r"/ip$").unwrap(), rr_ip),
+    let mut routes: Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)> = vec![
+        (Method::GET, Regex::new(r"/$").unwrap(), rr_index),
+        (Method::GET, Regex::new(r"/index$").unwrap(), rr_index),
+        (Method::GET, Regex::new(r"/index.html$").unwrap(), rr_index),
+        (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
+        (Method::GET, Regex::new(r"^/get$").unwrap(), rr_http_methods),
+        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), rr_http_methods),
+        (Method::POST, Regex::new(r"^/post$").unwrap(), rr_http_methods),
+        (Method::PUT, Regex::new(r"^/put$").unwrap(), rr_http_methods),
+        (Method::GET, Regex::new(r"^/image/jpeg$").unwrap(), rr_http_images),
+        (Method::GET, Regex::new(r"^/image/png$").unwrap(), rr_http_images),
+        (Method::GET, Regex::new(r"^/image/svg$").unwrap(), rr_http_images),
+        (Method::GET, Regex::new(r"^/image/webp$").unwrap(), rr_http_images),
+        (Method::GET, Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
+        (Method::GET, Regex::new(r"/ip$").unwrap(), rr_ip),
     ];
     return route(routes, req);
 }
