@@ -11,8 +11,6 @@ use std::ffi::OsStr;
 #[folder = "assets/"]
 struct Asset;
 
-
-
 fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
     let extension = Path::new(filename)
         .extension()
@@ -66,8 +64,10 @@ fn rr_http_methods(req: Request) -> Result<Response, Error> {
         .with_body(to_string_pretty(&resp).unwrap()))
 }
 
-fn rr_http_images(req: Request) -> Result<Response, Error> {
-    let img_path = match req.get_path() {
+fn rr_serve_asset(req: Request) -> Result<Response, Error> {
+    let path = match req.get_path() {
+        "/json" => "json.json",
+        "/html" => "html.html",
         "/image/jpeg" => "jpeg.jpeg",
         "/image/png" => "png.png",
         "/image/svg" => "svg.svg",
@@ -79,10 +79,10 @@ fn rr_http_images(req: Request) -> Result<Response, Error> {
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body("E_NOTFOUND"));
 
-    return match Asset::get(img_path) {
+    return match Asset::get(path) {
         Some(asset) => Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.data.as_ref())
-            .with_content_type(file_mimetype(img_path, mime::APPLICATION_OCTET_STREAM))),
+            .with_content_type(file_mimetype(path, mime::APPLICATION_OCTET_STREAM))),
 
         None => not_found,
     }
@@ -136,20 +136,16 @@ fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, re
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
-    type requestHandler = fn(Request) -> Result<Response, Error>;
-    let mut routes: Vec<(Method, Regex, requestHandler)> = vec![
-        (Method::GET, Regex::new(r"/$").unwrap(), rr_index),
-        (Method::GET, Regex::new(r"/index$").unwrap(), rr_index),
-        (Method::GET, Regex::new(r"/index.html$").unwrap(), rr_index),
+    type request_handler = fn(Request) -> Result<Response, Error>;
+    let mut routes: Vec<(Method, Regex, request_handler)> = vec![
+        (Method::GET, Regex::new(r"/(index(.html)?)?$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
         (Method::GET, Regex::new(r"^/get$").unwrap(), rr_http_methods),
         (Method::PATCH, Regex::new(r"^/patch$").unwrap(), rr_http_methods),
         (Method::POST, Regex::new(r"^/post$").unwrap(), rr_http_methods),
         (Method::PUT, Regex::new(r"^/put$").unwrap(), rr_http_methods),
-        (Method::GET, Regex::new(r"^/image/jpeg$").unwrap(), rr_http_images),
-        (Method::GET, Regex::new(r"^/image/png$").unwrap(), rr_http_images),
-        (Method::GET, Regex::new(r"^/image/svg$").unwrap(), rr_http_images),
-        (Method::GET, Regex::new(r"^/image/webp$").unwrap(), rr_http_images),
+        (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), rr_serve_asset),
+        (Method::GET, Regex::new(r"/(html|json)$").unwrap(), rr_serve_asset),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
         (Method::GET, Regex::new(r"/ip$").unwrap(), rr_ip),
     ];
