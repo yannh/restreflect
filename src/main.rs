@@ -18,7 +18,7 @@ fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
         .and_then(OsStr::to_str)
         .map(|s| s.to_lowercase());
 
-    let mime_webp: mime::Mime = "image/webp".parse().unwrap();
+    let mime_webp: mime::Mime = "image/webp".parse().unwrap_or(default.clone());
     match extension {
         Some(ext) => match ext.as_str() {
             "css" => mime::TEXT_CSS_UTF_8,
@@ -46,15 +46,15 @@ fn main(req: Request) -> Result<Response, Error> {
     let caps = Regex::new(r"/status/(\d{3})$").unwrap()
         .captures(req.get_path());
     if caps.is_some() {
-       let status = caps.unwrap().get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap());
-       return Ok(Response::from_status(StatusCode::from_u16(status).unwrap())
+       let status = caps.unwrap().get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
+       return Ok(Response::from_status(StatusCode::from_u16(status).unwrap_or(StatusCode::NOT_FOUND))
            .with_content_type(mime::TEXT_HTML_UTF_8))
     }
 
     let http_methods_paths = ["/delete", "/get", "/patch", "/post", "/put"];
     if http_methods_paths.contains(&req.get_path()) {
         let headers: HashMap<&str, &str>= req.get_headers()
-            .map(|m| (m.0.as_str(), m.1.to_str().unwrap()))
+            .map(|m| (m.0.as_str(), m.1.to_str().unwrap_or("")))
             .collect();
 
         let resp = json!({
@@ -88,7 +88,7 @@ fn main(req: Request) -> Result<Response, Error> {
     }
 
     if req.get_path() == "/user-agent" {
-        let ua = req.get_header("user-agent").unwrap().to_str().unwrap();
+        let ua = req.get_header("user-agent").unwrap().to_str().unwrap_or("");
         let resp = json!({
             "user-agent": ua
         });
