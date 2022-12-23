@@ -6,6 +6,12 @@ use regex::{Regex};
 use serde_json::{json, to_string_pretty};
 use rust_embed::RustEmbed;
 use std::ffi::OsStr;
+use utoipa::OpenApi;
+
+
+#[derive(OpenApi)]
+#[openapi(paths(rr_http_statuses))]
+struct ApiDoc;
 
 #[derive(RustEmbed)]
 #[folder = "assets/"]
@@ -38,6 +44,21 @@ fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
     }
 }
 
+#[utoipa::path(
+    get,
+    path = "/status/{codes}",
+    operation_id = "post_status",
+    responses(
+        (status = 100, description = "Informational Response"),
+        (status = 200, description = "Success"),
+        (status = 300, description = "Redirection"),
+        (status = 400, description = "Client Errors"),
+        (status = 500, description = "Server Errors"),
+    ),
+    params(
+        ("codes" = u16, Path, description = "Return status code or random status code if more than one are given"),
+    )
+)]
 fn rr_http_statuses(req: Request) -> Result<Response, Error> {
     let caps = Regex::new(r"/status/(\d{3})$").unwrap()
         .captures(req.get_path());
@@ -130,6 +151,12 @@ fn rr_ip(req: Request) -> Result<Response, Error> {
         .with_body(to_string_pretty(&resp).unwrap()))
 }
 
+fn rr_swagger(req: Request) -> Result<Response, Error> {
+    return Ok(Response::from_status(StatusCode::OK)
+        .with_content_type(mime::APPLICATION_JSON)
+        .with_body(ApiDoc::openapi().to_pretty_json().unwrap()));
+}
+
 fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, req: Request) -> Result<Response, Error>{
    for (method, r, cb) in routes {
        if method == req.get_method() && r.is_match(req.get_path()) {
@@ -143,8 +170,18 @@ fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, re
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
-    type request_handler = fn(Request) -> Result<Response, Error>;
-    let mut routes: Vec<(Method, Regex, request_handler)> = vec![
+    let mut p = req.get_path().to_owned();
+    p.insert_str(0, "site");
+    println!("{}", p);
+    let asset = Asset::get(p.as_str());
+    if asset.is_some() {
+        return Ok(Response::from_status(StatusCode::OK)
+            .with_body_octet_stream(asset.unwrap().data.as_ref())
+            .with_content_type(file_mimetype(req.get_path(), mime::APPLICATION_OCTET_STREAM)));
+    }
+
+    type RequestHandler = fn(Request) -> Result<Response, Error>;
+    let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
         (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
         (Method::GET, Regex::new(r"^/get$").unwrap(), rr_http_methods),
@@ -155,6 +192,7 @@ fn main(req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny|utf8)$").unwrap(), rr_serve_asset),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
         (Method::GET, Regex::new(r"/ip$").unwrap(), rr_ip),
+        (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
     ];
     return route(routes, req);
 }
