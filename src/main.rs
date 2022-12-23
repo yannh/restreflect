@@ -101,6 +101,27 @@ fn rr_index(req: Request) -> Result<Response, Error> {
     }
 }
 
+fn rr_user_agent(req: Request) -> Result<Response, Error> {
+    let ua = req.get_header("user-agent").unwrap().to_str().unwrap();
+    let resp = json!({
+            "user-agent": ua
+        });
+
+    return Ok(Response::from_status(StatusCode::OK)
+        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_body(resp.to_string()))
+}
+
+fn rr_ip(req: Request) -> Result<Response, Error> {
+    let resp = json!({
+            "ip": req.get_client_ip_addr()
+        });
+
+    return Ok(Response::from_status(StatusCode::OK)
+        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_body(resp.to_string()))
+}
+
 fn route(routes:Vec<(Regex, fn(Request) -> Result<Response, Error>)>, req: Request) -> Result<Response, Error>{
    for (r, cb) in routes {
        if r.is_match(req.get_path()) {
@@ -115,6 +136,9 @@ fn route(routes:Vec<(Regex, fn(Request) -> Result<Response, Error>)>, req: Reque
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
     let mut routes: Vec<(Regex, fn(Request) -> Result<Response, Error>)> = vec![
+        (Regex::new(r"/$").unwrap(), rr_index),
+        (Regex::new(r"/index$").unwrap(), rr_index),
+        (Regex::new(r"/index.html$").unwrap(), rr_index),
         (Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
         (Regex::new(r"^/get$").unwrap(), rr_http_methods),
         (Regex::new(r"^/patch$").unwrap(), rr_http_methods),
@@ -124,9 +148,8 @@ fn main(req: Request) -> Result<Response, Error> {
         (Regex::new(r"^/image/png$").unwrap(), rr_http_images),
         (Regex::new(r"^/image/svg$").unwrap(), rr_http_images),
         (Regex::new(r"^/image/webp$").unwrap(), rr_http_images),
-        (Regex::new(r"/$").unwrap(), rr_index),
-        (Regex::new(r"/index$").unwrap(), rr_index),
-        (Regex::new(r"/index.html$").unwrap(), rr_index),
+        (Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
+        (Regex::new(r"/ip$").unwrap(), rr_ip),
     ];
-    return route(routes, req.clone_without_body());
+    return route(routes, req);
 }
