@@ -1,8 +1,16 @@
 use std::collections::HashMap;
-use fastly::http::{HeaderName, HeaderValue, StatusCode};
+use std::path::Path;
+use fastly::http::{StatusCode};
 use fastly::{mime, Error, Request, Response};
 use regex::Regex;
 use serde_json::json;
+use rust_embed::RustEmbed;
+use std::ffi::OsStr;
+
+#[derive(RustEmbed)]
+#[folder = "assets/"]
+struct Asset;
+
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
@@ -54,6 +62,16 @@ fn main(req: Request) -> Result<Response, Error> {
         return Ok(Response::from_status(StatusCode::OK)
             .with_content_type(mime::TEXT_HTML_UTF_8)
             .with_body(resp.to_string()))
+    }
+
+    if req.get_path() == "/" || req.get_path() == "/index" || req.get_path() == "index.html" {
+        return match Asset::get("index.html") {
+            Some(asset) => Ok(Response::from_status(StatusCode::OK)
+                .with_body_octet_stream(asset.data.as_ref())
+                .with_content_type(mime::TEXT_HTML_UTF_8)),
+
+            None => not_found,
+        }
     }
 
     return not_found

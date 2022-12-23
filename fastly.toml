@@ -1,5 +1,13 @@
+# This file describes a Fastly Compute@Edge package. To learn more visit:
+# https://developer.fastly.com/reference/fastly-toml/
+
+authors = ["<yann@mandragor.org>"]
+description = "Rest. Reflect. Write a simple HTTP response service."
+language = "rust"
 manifest_version = 2
 name = "RestReflect"
-description = "Rest. Reflect. Write a simple HTTP response service."
-authors = ["<yann@mandragor.org>"]
-language = "rust"
+service_id = "jTZ68CsnbVNYLzrnL2I1Q1"
+
+[scripts]
+  build = "cargo build --bin fastly-compute-project --release --target wasm32-wasi --color always"
+  post_build = "wasm-strip bin/main.wasm"
