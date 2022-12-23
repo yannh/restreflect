@@ -26,9 +26,12 @@ fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
             "jpeg" | "jpg" => mime::IMAGE_JPEG,
             "png" => mime::IMAGE_PNG,
             "js" => mime::TEXT_JAVASCRIPT,
+            "json" => mime::APPLICATION_JSON,
             "svg" => mime::IMAGE_SVG,
+            "txt" => mime::TEXT_PLAIN,
             "webp" => mime_webp, // webp not supported https://github.com/hyperium/mime/pull/129
                                  // unfortunately the mime library is unmaintained
+            "xml" => mime::XML,
             _ => default,
         },
         _ => default,
@@ -66,8 +69,11 @@ fn rr_http_methods(req: Request) -> Result<Response, Error> {
 
 fn rr_serve_asset(req: Request) -> Result<Response, Error> {
     let path = match req.get_path() {
+        "/deny" => "robots.txt",
         "/json" => "json.json",
         "/html" => "html.html",
+        "/robots.txt" => "robots.txt",
+        "/xml" => "xml.xml",
         "/image/jpeg" => "jpeg.jpeg",
         "/image/png" => "png.png",
         "/image/svg" => "svg.svg",
@@ -138,14 +144,14 @@ fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, re
 fn main(req: Request) -> Result<Response, Error> {
     type request_handler = fn(Request) -> Result<Response, Error>;
     let mut routes: Vec<(Method, Regex, request_handler)> = vec![
-        (Method::GET, Regex::new(r"/(index(.html)?)?$").unwrap(), rr_index),
+        (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
         (Method::GET, Regex::new(r"^/get$").unwrap(), rr_http_methods),
         (Method::PATCH, Regex::new(r"^/patch$").unwrap(), rr_http_methods),
         (Method::POST, Regex::new(r"^/post$").unwrap(), rr_http_methods),
         (Method::PUT, Regex::new(r"^/put$").unwrap(), rr_http_methods),
         (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), rr_serve_asset),
-        (Method::GET, Regex::new(r"/(html|json)$").unwrap(), rr_serve_asset),
+        (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny)$").unwrap(), rr_serve_asset),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
         (Method::GET, Regex::new(r"/ip$").unwrap(), rr_ip),
     ];
