@@ -31,7 +31,7 @@ fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
             "txt" => mime::TEXT_PLAIN,
             "webp" => mime_webp, // webp not supported https://github.com/hyperium/mime/pull/129
                                  // unfortunately the mime library is unmaintained
-            "xml" => mime::XML,
+            "xml" => mime::TEXT_XML,
             _ => default,
         },
         _ => default,
@@ -73,6 +73,7 @@ fn rr_serve_asset(req: Request) -> Result<Response, Error> {
         "/json" => "json.json",
         "/html" => "html.html",
         "/robots.txt" => "robots.txt",
+        "/encoding/utf8" => "utf8.txt",
         "/xml" => "xml.xml",
         "/image/jpeg" => "jpeg.jpeg",
         "/image/png" => "png.png",
@@ -151,7 +152,7 @@ fn main(req: Request) -> Result<Response, Error> {
         (Method::POST, Regex::new(r"^/post$").unwrap(), rr_http_methods),
         (Method::PUT, Regex::new(r"^/put$").unwrap(), rr_http_methods),
         (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), rr_serve_asset),
-        (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny)$").unwrap(), rr_serve_asset),
+        (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny|utf8)$").unwrap(), rr_serve_asset),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
         (Method::GET, Regex::new(r"/ip$").unwrap(), rr_ip),
     ];
