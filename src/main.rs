@@ -3,13 +3,14 @@ use std::path::Path;
 use fastly::http::{Method, StatusCode};
 use fastly::{Error, mime, Request, Response};
 use regex::{Regex};
-use serde_json::json;
+use serde_json::{json, to_string_pretty};
 use rust_embed::RustEmbed;
 use std::ffi::OsStr;
 
 #[derive(RustEmbed)]
 #[folder = "assets/"]
 struct Asset;
+
 
 
 fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
@@ -62,7 +63,7 @@ fn rr_http_methods(req: Request) -> Result<Response, Error> {
 
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body(resp.to_string()))
+        .with_body(to_string_pretty(&resp).unwrap()))
 }
 
 fn rr_http_images(req: Request) -> Result<Response, Error> {
@@ -109,7 +110,7 @@ fn rr_user_agent(req: Request) -> Result<Response, Error> {
 
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body(resp.to_string()))
+        .with_body(to_string_pretty(&resp).unwrap()))
 }
 
 fn rr_ip(req: Request) -> Result<Response, Error> {
@@ -119,7 +120,7 @@ fn rr_ip(req: Request) -> Result<Response, Error> {
 
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body(resp.to_string()))
+        .with_body(to_string_pretty(&resp).unwrap()))
 }
 
 fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, req: Request) -> Result<Response, Error>{
@@ -135,7 +136,8 @@ fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, re
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
-    let mut routes: Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)> = vec![
+    type requestHandler = fn(Request) -> Result<Response, Error>;
+    let mut routes: Vec<(Method, Regex, requestHandler)> = vec![
         (Method::GET, Regex::new(r"/$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"/index$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"/index.html$").unwrap(), rr_index),
