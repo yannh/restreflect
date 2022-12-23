@@ -10,7 +10,7 @@ use utoipa::OpenApi;
 
 
 #[derive(OpenApi)]
-#[openapi(paths(rr_http_statuses))]
+#[openapi(paths(rr_http_statuses, rr_delete, rr_get, rr_put, rr_post, rr_patch))]
 struct ApiDoc;
 
 #[derive(RustEmbed)]
@@ -86,6 +86,66 @@ fn rr_http_methods(req: Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body(to_string_pretty(&resp).unwrap()))
+}
+
+#[utoipa::path(
+    delete,
+    path = "/delete",
+    tag = "HTTP Methods",
+    responses(
+        (status = 200, description = "The request's DELETE parameters.", content_type = "application/json")
+    )
+)]
+fn rr_delete(req: Request) -> Result<Response, Error> {
+    return rr_http_methods(req)
+}
+
+#[utoipa::path(
+    get,
+    path = "/get",
+    tag = "HTTP Methods",
+    responses(
+        (status = 200, description = "The request's query parameters.", content_type = "application/json")
+    )
+)]
+fn rr_get(req: Request) -> Result<Response, Error> {
+    return rr_http_methods(req)
+}
+
+#[utoipa::path(
+    post,
+    path = "/post",
+    tag = "HTTP Methods",
+    responses(
+        (status = 200, description = "The request's POST parameters.", content_type = "application/json")
+    )
+)]
+fn rr_post(req: Request) -> Result<Response, Error> {
+    return rr_http_methods(req)
+}
+
+#[utoipa::path(
+    put,
+    path = "/put",
+    tag = "HTTP Methods",
+    responses(
+        (status = 200, description = "The request's PUT parameters.", content_type = "application/json")
+    )
+)]
+fn rr_put(req: Request) -> Result<Response, Error> {
+    return rr_http_methods(req)
+}
+
+#[utoipa::path(
+    patch,
+    path = "/patch",
+    tag = "HTTP Methods",
+    responses(
+        (status = 200, description = "The request's PATCH parameters.", content_type = "application/json")
+    )
+)]
+fn rr_patch(req: Request) -> Result<Response, Error> {
+    return rr_http_methods(req)
 }
 
 fn rr_serve_asset(req: Request) -> Result<Response, Error> {
@@ -184,10 +244,11 @@ fn main(req: Request) -> Result<Response, Error> {
     let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
         (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
-        (Method::GET, Regex::new(r"^/get$").unwrap(), rr_http_methods),
-        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), rr_http_methods),
-        (Method::POST, Regex::new(r"^/post$").unwrap(), rr_http_methods),
-        (Method::PUT, Regex::new(r"^/put$").unwrap(), rr_http_methods),
+        (Method::GET, Regex::new(r"^/delete$").unwrap(), rr_delete),
+        (Method::GET, Regex::new(r"^/get$").unwrap(), rr_get),
+        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), rr_patch),
+        (Method::POST, Regex::new(r"^/post$").unwrap(), rr_post),
+        (Method::PUT, Regex::new(r"^/put$").unwrap(), rr_put),
         (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), rr_serve_asset),
         (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny|utf8)$").unwrap(), rr_serve_asset),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
