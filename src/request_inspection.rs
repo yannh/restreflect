@@ -1,9 +1,5 @@
-use std::collections::HashMap;
-use std::path::Path;
-use fastly::http::{Method, StatusCode};
+use fastly::http::{StatusCode};
 use fastly::{Error, mime, Request, Response};
-use regex::{Regex};
-use utoipa::OpenApi;
 use serde_json::{json, to_string_pretty};
 
 #[utoipa::path(

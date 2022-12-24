@@ -1,9 +1,6 @@
 use std::collections::HashMap;
-use std::path::Path;
 use fastly::http::{Method, StatusCode};
 use fastly::{Error, mime, Request, Response};
-use regex::{Regex};
-use utoipa::OpenApi;
 use serde_json::{json, to_string_pretty};
 
 fn rr_http_methods(req: Request) -> Result<Response, Error> {
