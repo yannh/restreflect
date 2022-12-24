@@ -1,6 +1,7 @@
 mod http_methods;
 mod request_inspection;
 mod status_codes;
+mod assets;
 
 use std::path::Path;
 use fastly::http::{Method, StatusCode};
@@ -25,73 +26,12 @@ use utoipa::OpenApi;
 )]
 struct ApiDoc;
 
-#[derive(RustEmbed)]
-#[folder = "assets/"]
-struct Asset;
-
-fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
-    let extension = Path::new(filename)
-        .extension()
-        .and_then(OsStr::to_str)
-        .map(|s| s.to_lowercase());
-
-    let mime_webp: mime::Mime = "image/webp".parse().unwrap_or(default.clone());
-    match extension {
-        Some(ext) => match ext.as_str() {
-            "css" => mime::TEXT_CSS_UTF_8,
-            "gif" => mime::IMAGE_GIF,
-            "html" | "htm" => mime::TEXT_HTML_UTF_8,
-            "jpeg" | "jpg" => mime::IMAGE_JPEG,
-            "png" => mime::IMAGE_PNG,
-            "js" => mime::TEXT_JAVASCRIPT,
-            "json" => mime::APPLICATION_JSON,
-            "svg" => mime::IMAGE_SVG,
-            "txt" => mime::TEXT_PLAIN,
-            "webp" => mime_webp, // webp not supported https://github.com/hyperium/mime/pull/129
-                                 // unfortunately the mime library is unmaintained
-            "xml" => mime::TEXT_XML,
-            _ => default,
-        },
-        _ => default,
-    }
-}
-
-
-
-fn rr_serve_asset(req: Request) -> Result<Response, Error> {
-    let path = match req.get_path() {
-        "/deny" => "robots.txt",
-        "/json" => "json.json",
-        "/html" => "html.html",
-        "/robots.txt" => "robots.txt",
-        "/encoding/utf8" => "utf8.txt",
-        "/xml" => "xml.xml",
-        "/image/jpeg" => "jpeg.jpeg",
-        "/image/png" => "png.png",
-        "/image/svg" => "svg.svg",
-        "/image/webp" => "webp.webp",
-        _ => ""
-    };
-
-    let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body("E_NOTFOUND"));
-
-    return match Asset::get(path) {
-        Some(asset) => Ok(Response::from_status(StatusCode::OK)
-            .with_body_octet_stream(asset.data.as_ref())
-            .with_content_type(file_mimetype(path, mime::APPLICATION_OCTET_STREAM))),
-
-        None => not_found,
-    }
-}
-
 fn rr_index(req: Request) -> Result<Response, Error> {
     let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body("E_NOTFOUND"));
 
-    return match Asset::get("index.html") {
+    return match crate::assets::Asset::get("index.html") {
         Some(asset) => Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.data.as_ref())
             .with_content_type(mime::TEXT_HTML_UTF_8)),
@@ -130,11 +70,11 @@ fn main(req: Request) -> Result<Response, Error> {
 
     let mut p = path.to_owned();
     p.insert_str(0, "site");
-    let asset = Asset::get(p.as_str());
+    let asset = assets::Asset::get(p.as_str());
     if asset.is_some() {
         return Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.unwrap().data.as_ref())
-            .with_content_type(file_mimetype(path, mime::APPLICATION_OCTET_STREAM)));
+            .with_content_type(assets::file_mimetype(path, mime::APPLICATION_OCTET_STREAM)));
     }
 
     type RequestHandler = fn(Request) -> Result<Response, Error>;
@@ -150,8 +90,8 @@ fn main(req: Request) -> Result<Response, Error> {
         (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_methods::patch),
         (Method::POST, Regex::new(r"^/post$").unwrap(), http_methods::post),
         (Method::PUT, Regex::new(r"^/put$").unwrap(), http_methods::put),
-        (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), rr_serve_asset),
-        (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny|utf8)$").unwrap(), rr_serve_asset),
+        (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), assets::rr_serve_asset),
+        (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny|utf8)$").unwrap(), assets::rr_serve_asset),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), request_inspection::user_agent),
         (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection::ip),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),

@@ -96,11 +96,11 @@ pub fn put(req: Request) -> Result<Response, Error> {
         ("codes" = u16, Path, description = "Return status code or random status code if more than one are given"),
     )
 )]
-
 /// Return status code or random status code if more than one is given
 pub fn patch(req: Request) -> Result<Response, Error> {
     return rr_http_statuses(req)
 }
+
 #[utoipa::path(
     delete,
     path = "/status/{codes}",
