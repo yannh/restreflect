@@ -37,20 +37,20 @@ pub fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
     }
 }
 
-pub fn serve(req: Request) -> Result<Response, Error> {
-    let path = match req.get_path() {
-        "/deny" => "robots.txt",
-        "/json" => "json.json",
-        "/html" => "html.html",
-        "/robots.txt" => "robots.txt",
-        "/encoding/utf8" => "utf8.txt",
-        "/xml" => "xml.xml",
-        "/image/jpeg" => "jpeg.jpeg",
-        "/image/png" => "png.png",
-        "/image/svg" => "svg.svg",
-        "/image/webp" => "webp.webp",
-        _ => ""
-    };
+pub fn serve(path: &str, mt: mime::Mime) -> Result<Response, Error> {
+    //let path = match req.get_path() {
+    //    "/deny" => "robots.txt",
+    //    "/json" => "json.json",
+    //    "/html" => "html.html",
+    //    "/robots.txt" => "robots.txt",
+    //    "/encoding/utf8" => "utf8.txt",
+    //    "/xml" => "xml.xml",
+    //    "/image/jpeg" => "jpeg.jpeg",
+    //    "/image/png" => "png.png",
+    //    "/image/svg" => "svg.svg",
+    //    "/image/webp" => "webp.webp",
+    //    _ => ""
+    //};
 
     let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML_UTF_8)

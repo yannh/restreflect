@@ -1,5 +1,6 @@
 mod assets;
 mod http_methods;
+mod images;
 mod request_inspection;
 mod response_formats;
 mod status_codes;
@@ -16,8 +17,10 @@ use utoipa::OpenApi;
 #[openapi(
   paths(
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
+    images::jpeg, images::png, images::svg, images::webp,
     request_inspection::user_agent, request_inspection::ip,
-    response_formats::html, response_formats::json,
+    response_formats::html, response_formats::json, response_formats::xml, response_formats::encoding_utf8,
+    response_formats::deny, response_formats::robots_txt,
     status_codes::get, status_codes::post, status_codes::put, status_codes::patch, status_codes::delete,
   ),
   tags(
@@ -91,10 +94,17 @@ fn main(req: Request) -> Result<Response, Error> {
         (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_methods::patch),
         (Method::POST, Regex::new(r"^/post$").unwrap(), http_methods::post),
         (Method::PUT, Regex::new(r"^/put$").unwrap(), http_methods::put),
-        (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), assets::serve),
+        //(Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), assets::serve),
+        (Method::GET, Regex::new(r"^/image/jpeg$").unwrap(), images::jpeg),
+        (Method::GET, Regex::new(r"^/image/png$").unwrap(), images::png),
+        (Method::GET, Regex::new(r"^/image/svg$").unwrap(), images::png),
+        (Method::GET, Regex::new(r"^/image/webp$").unwrap(), images::webp),
         (Method::GET, Regex::new(r"/html$").unwrap(), response_formats::html),
         (Method::GET, Regex::new(r"/json$").unwrap(), response_formats::json),
-        (Method::GET, Regex::new(r"/(json|robots\.txt|xml|deny|utf8)$").unwrap(), assets::serve),
+        (Method::GET, Regex::new(r"/robots\.txt$").unwrap(), response_formats::robots_txt),
+        (Method::GET, Regex::new(r"/xml$").unwrap(), response_formats::xml),
+        (Method::GET, Regex::new(r"/deny$").unwrap(), response_formats::deny),
+        (Method::GET, Regex::new(r"/utf8$").unwrap(), response_formats::encoding_utf8),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), request_inspection::user_agent),
         (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection::ip),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
