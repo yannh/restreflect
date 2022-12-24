@@ -1,3 +1,6 @@
+mod http_methods;
+mod request_inspection;
+
 use std::collections::HashMap;
 use std::path::Path;
 use fastly::http::{Method, StatusCode};
@@ -8,6 +11,8 @@ use rust_embed::RustEmbed;
 use std::ffi::OsStr;
 use utoipa::OpenApi;
 
+pub use http_methods::*;
+pub use request_inspection::*;
 
 #[derive(OpenApi)]
 #[openapi(paths(rr_http_statuses, rr_delete, rr_get, rr_put, rr_post, rr_patch, rr_user_agent, rr_ip))]
@@ -72,81 +77,6 @@ fn rr_http_statuses(req: Request) -> Result<Response, Error> {
         .with_content_type(mime::TEXT_HTML_UTF_8));
 }
 
-fn rr_http_methods(req: Request) -> Result<Response, Error> {
-    let headers: HashMap<&str, &str>= req.get_headers()
-        .map(|m| (m.0.as_str(), m.1.to_str().unwrap_or("")))
-        .collect();
-
-    let resp = json!({
-            "headers": headers,
-            "origin": req.get_client_ip_addr(),
-            "url": req.get_url_str()
-        });
-
-    return Ok(Response::from_status(StatusCode::OK)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body(to_string_pretty(&resp).unwrap()))
-}
-
-#[utoipa::path(
-    delete,
-    path = "/delete",
-    tag = "HTTP Methods",
-    responses(
-        (status = 200, description = "The request's DELETE parameters.", content_type = "application/json")
-    )
-)]
-fn rr_delete(req: Request) -> Result<Response, Error> {
-    return rr_http_methods(req)
-}
-
-#[utoipa::path(
-    get,
-    path = "/get",
-    tag = "HTTP Methods",
-    responses(
-        (status = 200, description = "The request's query parameters.", content_type = "application/json")
-    )
-)]
-fn rr_get(req: Request) -> Result<Response, Error> {
-    return rr_http_methods(req)
-}
-
-#[utoipa::path(
-    post,
-    path = "/post",
-    tag = "HTTP Methods",
-    responses(
-        (status = 200, description = "The request's POST parameters.", content_type = "application/json")
-    )
-)]
-fn rr_post(req: Request) -> Result<Response, Error> {
-    return rr_http_methods(req)
-}
-
-#[utoipa::path(
-    put,
-    path = "/put",
-    tag = "HTTP Methods",
-    responses(
-        (status = 200, description = "The request's PUT parameters.", content_type = "application/json")
-    )
-)]
-fn rr_put(req: Request) -> Result<Response, Error> {
-    return rr_http_methods(req)
-}
-
-#[utoipa::path(
-    patch,
-    path = "/patch",
-    tag = "HTTP Methods",
-    responses(
-        (status = 200, description = "The request's PATCH parameters.", content_type = "application/json")
-    )
-)]
-fn rr_patch(req: Request) -> Result<Response, Error> {
-    return rr_http_methods(req)
-}
 
 fn rr_serve_asset(req: Request) -> Result<Response, Error> {
     let path = match req.get_path() {
@@ -191,42 +121,6 @@ fn rr_index(req: Request) -> Result<Response, Error> {
 }
 
 
-#[utoipa::path(
-    patch,
-    path = "/user-agent",
-    tag = "Request inspection",
-    responses(
-        (status = 200, description = "The request’s User-Agent header.", content_type = "application/json")
-    )
-)]
-fn rr_user_agent(req: Request) -> Result<Response, Error> {
-    let ua = req.get_header("user-agent").unwrap().to_str().unwrap();
-    let resp = json!({
-            "user-agent": ua
-        });
-
-    return Ok(Response::from_status(StatusCode::OK)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body(to_string_pretty(&resp).unwrap()))
-}
-
-#[utoipa::path(
-    patch,
-    path = "/ip",
-    tag = "Request inspection",
-    responses(
-        (status = 200, description = "The Requester's IP address", content_type = "application/json")
-    )
-)]
-fn rr_ip(req: Request) -> Result<Response, Error> {
-    let resp = json!({
-            "ip": req.get_client_ip_addr()
-        });
-
-    return Ok(Response::from_status(StatusCode::OK)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body(to_string_pretty(&resp).unwrap()))
-}
 
 fn rr_swagger(req: Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
