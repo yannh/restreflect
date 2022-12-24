@@ -139,14 +139,20 @@ fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, re
 
 #[fastly::main]
 fn main(req: Request) -> Result<Response, Error> {
-    let mut p = req.get_path().to_owned();
+    let path = match req.get_path() {
+        "/" => "/index.html",
+        "/index" => "/index.html",
+        "/index.html" => "/index.html",
+        _ => req.get_path(),
+    };
+
+    let mut p = path.to_owned();
     p.insert_str(0, "site");
-    println!("{}", p);
     let asset = Asset::get(p.as_str());
     if asset.is_some() {
         return Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.unwrap().data.as_ref())
-            .with_content_type(file_mimetype(req.get_path(), mime::APPLICATION_OCTET_STREAM)));
+            .with_content_type(file_mimetype(path, mime::APPLICATION_OCTET_STREAM)));
     }
 
     type RequestHandler = fn(Request) -> Result<Response, Error>;
