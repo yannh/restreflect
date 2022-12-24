@@ -73,7 +73,7 @@ fn main(req: Request) -> Result<Response, Error> {
     };
 
     let mut p = path.to_owned();
-    p.insert_str(0, "site");
+    p.insert_str(0, "swagger-ui");
     let asset = assets::Asset::get(p.as_str());
     if asset.is_some() {
         return Ok(Response::from_status(StatusCode::OK)

@@ -63,7 +63,7 @@ pub fn xml(req: Request) -> Result<Response, Error> {
     path = "/deny",
     tag = "Response formats",
     responses(
-        (status = 200, description = "Denied message", content_type = "text/plain")
+        (status = 200, description = "Denied message", body=String, content_type = "text/plain")
     )
 )]
 /// Returns page denied by robots.txt rules.
