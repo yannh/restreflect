@@ -10,10 +10,18 @@ use std::ffi::OsStr;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]
-#[openapi(paths(
+#[openapi(
+  paths(
     rr_http_statuses,
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
-    request_inspection::user_agent, request_inspection::ip))]
+    request_inspection::user_agent, request_inspection::ip
+  ),
+  tags(
+    (name = "HTTP Methods", description = "Testing different HTTP verbs"),
+    (name = "Request inspection", description = "Inspect the request data"),
+    (name = "Status codes", description = "Generates responses with given status code")
+  ),
+)]
 struct ApiDoc;
 
 #[derive(RustEmbed)]

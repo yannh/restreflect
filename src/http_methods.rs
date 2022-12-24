@@ -27,6 +27,7 @@ fn http_methods(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's query parameters.", content_type = "application/json")
     )
 )]
+/// The request's query parameter
 pub fn get(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
@@ -39,6 +40,7 @@ pub fn get(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's POST parameters.", content_type = "application/json")
     )
 )]
+/// The request's POST parameter
 pub fn post(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
@@ -51,6 +53,7 @@ pub fn post(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's PUT parameters.", content_type = "application/json")
     )
 )]
+/// The request's PUT parameter
 pub fn put(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
@@ -63,6 +66,7 @@ pub fn put(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's PATCH parameters.", content_type = "application/json")
     )
 )]
+/// The request's PATCH parameter
 pub fn patch(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
@@ -75,6 +79,7 @@ pub fn patch(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's DELETE parameters.", content_type = "application/json")
     )
 )]
+/// The request's DELETE parameter
 pub fn delete(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
