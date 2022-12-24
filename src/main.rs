@@ -1,7 +1,8 @@
+mod assets;
 mod http_methods;
 mod request_inspection;
+mod response_formats;
 mod status_codes;
-mod assets;
 
 use std::path::Path;
 use fastly::http::{Method, StatusCode};
@@ -16,11 +17,13 @@ use utoipa::OpenApi;
   paths(
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
     request_inspection::user_agent, request_inspection::ip,
+    response_formats::html, response_formats::json,
     status_codes::get, status_codes::post, status_codes::put, status_codes::patch, status_codes::delete,
   ),
   tags(
     (name = "HTTP Methods", description = "Testing different HTTP verbs"),
     (name = "Request inspection", description = "Inspect the request data"),
+    (name = "Response formats", description = "Returns responses in different data formats"),
     (name = "Status codes", description = "Generates responses with given status code"),
   ),
 )]
@@ -39,8 +42,6 @@ fn rr_index(req: Request) -> Result<Response, Error> {
         None => not_found,
     }
 }
-
-
 
 fn rr_swagger(req: Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
@@ -90,8 +91,10 @@ fn main(req: Request) -> Result<Response, Error> {
         (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_methods::patch),
         (Method::POST, Regex::new(r"^/post$").unwrap(), http_methods::post),
         (Method::PUT, Regex::new(r"^/put$").unwrap(), http_methods::put),
-        (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), assets::rr_serve_asset),
-        (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny|utf8)$").unwrap(), assets::rr_serve_asset),
+        (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), assets::serve),
+        (Method::GET, Regex::new(r"/html$").unwrap(), response_formats::html),
+        (Method::GET, Regex::new(r"/json$").unwrap(), response_formats::json),
+        (Method::GET, Regex::new(r"/(json|robots\.txt|xml|deny|utf8)$").unwrap(), assets::serve),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), request_inspection::user_agent),
         (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection::ip),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),

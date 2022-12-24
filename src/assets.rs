@@ -37,7 +37,7 @@ pub fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
     }
 }
 
-pub fn rr_serve_asset(req: Request) -> Result<Response, Error> {
+pub fn serve(req: Request) -> Result<Response, Error> {
     let path = match req.get_path() {
         "/deny" => "robots.txt",
         "/json" => "json.json",
