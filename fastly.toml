@@ -2,12 +2,12 @@
 # https://developer.fastly.com/reference/fastly-toml/
 
 authors = ["<yann@mandragor.org>"]
-description = "Rest. Reflect. Write a simple HTTP response service."
+description = "REST. Reflect. Write a simple HTTP response service."
 language = "rust"
 manifest_version = 2
-name = "RestReflect"
+name = "RESTReflect"
 service_id = "jTZ68CsnbVNYLzrnL2I1Q1"
 
 [scripts]
-  build = "cargo build --bin RestReflect --release --target wasm32-wasi --color always"
+  build = "cargo build --bin RESTReflect --release --target wasm32-wasi --color always"
   post_build = "wasm-strip bin/main.wasm"
