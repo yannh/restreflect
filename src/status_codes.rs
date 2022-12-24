@@ -20,6 +20,7 @@ fn rr_http_statuses(req: Request) -> Result<Response, Error> {
 #[utoipa::path(
     get,
     path = "/status/{codes}",
+    operation_id = "status_get",
     tag = "Status codes",
     responses(
         (status = 100, description = "Informational Response"),
@@ -40,6 +41,7 @@ pub fn get(req: Request) -> Result<Response, Error> {
 #[utoipa::path(
     post,
     path = "/status/{codes}",
+    operation_id = "status_post",
     tag = "Status codes",
     responses(
         (status = 100, description = "Informational Response"),
@@ -60,6 +62,7 @@ pub fn post(req: Request) -> Result<Response, Error> {
 #[utoipa::path(
     put,
     path = "/status/{codes}",
+    operation_id = "status_put",
     tag = "Status codes",
     responses(
         (status = 100, description = "Informational Response"),
@@ -80,6 +83,7 @@ pub fn put(req: Request) -> Result<Response, Error> {
 #[utoipa::path(
     patch,
     path = "/status/{codes}",
+    operation_id = "status_patch",
     tag = "Status codes",
     responses(
         (status = 100, description = "Informational Response"),
@@ -100,6 +104,7 @@ pub fn patch(req: Request) -> Result<Response, Error> {
 #[utoipa::path(
     delete,
     path = "/status/{codes}",
+    operation_id = "status_delete",
     tag = "Status codes",
     responses(
         (status = 100, description = "Informational Response"),
