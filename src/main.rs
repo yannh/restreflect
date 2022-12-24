@@ -94,7 +94,6 @@ fn main(req: Request) -> Result<Response, Error> {
         (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_methods::patch),
         (Method::POST, Regex::new(r"^/post$").unwrap(), http_methods::post),
         (Method::PUT, Regex::new(r"^/put$").unwrap(), http_methods::put),
-        //(Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), assets::serve),
         (Method::GET, Regex::new(r"^/image/jpeg$").unwrap(), images::jpeg),
         (Method::GET, Regex::new(r"^/image/png$").unwrap(), images::png),
         (Method::GET, Regex::new(r"^/image/svg$").unwrap(), images::png),
