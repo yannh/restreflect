@@ -1,8 +1,11 @@
 [package]
 name = "RestReflect"
 version = "0.0.1"
-authors = []
+authors = ["Yann Hamon <yann+nospam@mandragor.org>"]
 edition = "2018"
+descrition = "REST. Reflect. Enjoy a simple HTTP Echo server."
+license = "MIT"
+license-file = "LICENSE"
 # Remove this line if you want to be able to publish this crate as open source on crates.io.
 # Otherwise, `publish = false` prevents an accidental `cargo publish` from revealing private source.
 publish = false

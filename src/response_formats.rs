@@ -63,7 +63,7 @@ pub fn xml(req: Request) -> Result<Response, Error> {
     path = "/deny",
     tag = "Response formats",
     responses(
-        (status = 200, description = "Denied message", body=String, content_type = "text/plain")
+        (status = 200, description = "Denied message", body=str, content_type = "text/plain")
     )
 )]
 /// Returns page denied by robots.txt rules.
@@ -76,7 +76,7 @@ pub fn deny(req: Request) -> Result<Response, Error> {
     path = "/encoding/utf8",
     tag = "Response formats",
     responses(
-        (status = 200, description = "Encoded UTF-8 content.", content_type = "text/plain")
+        (status = 200, description = "Encoded UTF-8 content.", body=str, content_type = "text/plain")
     )
 )]
 /// Returns a UTF-8 encoded body.
