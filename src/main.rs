@@ -15,7 +15,10 @@ pub use http_methods::*;
 pub use request_inspection::*;
 
 #[derive(OpenApi)]
-#[openapi(paths(rr_http_statuses, rr_delete, rr_get, rr_put, rr_post, rr_patch, rr_user_agent, rr_ip))]
+#[openapi(paths(
+    rr_http_statuses,
+    http_method_delete, http_method_get, http_method_put, http_method_post, http_method_patch,
+    request_inspection_user_agent, request_inspection_ip))]
 struct ApiDoc;
 
 #[derive(RustEmbed)]
@@ -155,15 +158,15 @@ fn main(req: Request) -> Result<Response, Error> {
     let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
         (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
-        (Method::GET, Regex::new(r"^/delete$").unwrap(), rr_delete),
-        (Method::GET, Regex::new(r"^/get$").unwrap(), rr_get),
-        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), rr_patch),
-        (Method::POST, Regex::new(r"^/post$").unwrap(), rr_post),
-        (Method::PUT, Regex::new(r"^/put$").unwrap(), rr_put),
+        (Method::GET, Regex::new(r"^/delete$").unwrap(), http_method_delete),
+        (Method::GET, Regex::new(r"^/get$").unwrap(), http_method_get),
+        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_method_patch),
+        (Method::POST, Regex::new(r"^/post$").unwrap(), http_method_post),
+        (Method::PUT, Regex::new(r"^/put$").unwrap(), http_method_put),
         (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), rr_serve_asset),
         (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny|utf8)$").unwrap(), rr_serve_asset),
-        (Method::GET, Regex::new(r"/user-agent$").unwrap(), rr_user_agent),
-        (Method::GET, Regex::new(r"/ip$").unwrap(), rr_ip),
+        (Method::GET, Regex::new(r"/user-agent$").unwrap(), request_inspection_user_agent),
+        (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection_ip),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
     ];
     return route(routes, req);
