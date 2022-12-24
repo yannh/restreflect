@@ -1,5 +1,5 @@
 use std::collections::HashMap;
-use fastly::http::{Method, StatusCode};
+use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
 
@@ -27,7 +27,7 @@ fn http_methods(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's query parameters.", content_type = "application/json")
     )
 )]
-pub fn http_method_get(req: Request) -> Result<Response, Error> {
+pub fn get(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -39,7 +39,7 @@ pub fn http_method_get(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's POST parameters.", content_type = "application/json")
     )
 )]
-pub fn http_method_post(req: Request) -> Result<Response, Error> {
+pub fn post(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -51,7 +51,7 @@ pub fn http_method_post(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's PUT parameters.", content_type = "application/json")
     )
 )]
-pub fn http_method_put(req: Request) -> Result<Response, Error> {
+pub fn put(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -63,7 +63,7 @@ pub fn http_method_put(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's PATCH parameters.", content_type = "application/json")
     )
 )]
-pub fn http_method_patch(req: Request) -> Result<Response, Error> {
+pub fn patch(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -75,7 +75,7 @@ pub fn http_method_patch(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The request's DELETE parameters.", content_type = "application/json")
     )
 )]
-pub fn http_method_delete(req: Request) -> Result<Response, Error> {
+pub fn delete(req: Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 

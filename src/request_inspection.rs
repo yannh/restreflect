@@ -10,7 +10,7 @@ use serde_json::{json, to_string_pretty};
         (status = 200, description = "The request’s User-Agent header.", content_type = "application/json")
     )
 )]
-pub fn request_inspection_user_agent(req: Request) -> Result<Response, Error> {
+pub fn user_agent(req: Request) -> Result<Response, Error> {
     let ua = req.get_header("user-agent").unwrap().to_str().unwrap();
     let resp = json!({
             "user-agent": ua
@@ -29,7 +29,7 @@ pub fn request_inspection_user_agent(req: Request) -> Result<Response, Error> {
         (status = 200, description = "The Requester's IP address", content_type = "application/json")
     )
 )]
-pub fn request_inspection_ip(req: Request) -> Result<Response, Error> {
+pub fn ip(req: Request) -> Result<Response, Error> {
     let resp = json!({
             "ip": req.get_client_ip_addr()
         });

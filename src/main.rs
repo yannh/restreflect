@@ -1,24 +1,19 @@
 mod http_methods;
 mod request_inspection;
 
-use std::collections::HashMap;
 use std::path::Path;
 use fastly::http::{Method, StatusCode};
 use fastly::{Error, mime, Request, Response};
 use regex::{Regex};
-use serde_json::{json, to_string_pretty};
 use rust_embed::RustEmbed;
 use std::ffi::OsStr;
 use utoipa::OpenApi;
 
-pub use http_methods::*;
-pub use request_inspection::*;
-
 #[derive(OpenApi)]
 #[openapi(paths(
     rr_http_statuses,
-    http_method_delete, http_method_get, http_method_put, http_method_post, http_method_patch,
-    request_inspection_user_agent, request_inspection_ip))]
+    http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
+    request_inspection::user_agent, request_inspection::ip))]
 struct ApiDoc;
 
 #[derive(RustEmbed)]
@@ -158,15 +153,15 @@ fn main(req: Request) -> Result<Response, Error> {
     let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
         (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
-        (Method::GET, Regex::new(r"^/delete$").unwrap(), http_method_delete),
-        (Method::GET, Regex::new(r"^/get$").unwrap(), http_method_get),
-        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_method_patch),
-        (Method::POST, Regex::new(r"^/post$").unwrap(), http_method_post),
-        (Method::PUT, Regex::new(r"^/put$").unwrap(), http_method_put),
+        (Method::GET, Regex::new(r"^/delete$").unwrap(), http_methods::delete),
+        (Method::GET, Regex::new(r"^/get$").unwrap(), http_methods::get),
+        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_methods::patch),
+        (Method::POST, Regex::new(r"^/post$").unwrap(), http_methods::post),
+        (Method::PUT, Regex::new(r"^/put$").unwrap(), http_methods::put),
         (Method::GET, Regex::new(r"^/image/(jpeg|png|svg|webp)$").unwrap(), rr_serve_asset),
         (Method::GET, Regex::new(r"/(html|json|robots\.txt|xml|deny|utf8)$").unwrap(), rr_serve_asset),
-        (Method::GET, Regex::new(r"/user-agent$").unwrap(), request_inspection_user_agent),
-        (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection_ip),
+        (Method::GET, Regex::new(r"/user-agent$").unwrap(), request_inspection::user_agent),
+        (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection::ip),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
     ];
     return route(routes, req);
