@@ -50,7 +50,7 @@ fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
 #[utoipa::path(
     get,
     path = "/status/{codes}",
-    operation_id = "post_status",
+    tag = "Status codes",
     responses(
         (status = 100, description = "Informational Response"),
         (status = 200, description = "Success"),

@@ -3,6 +3,18 @@
 version = 3
 
 [[package]]
+name = "RestReflect"
+version = "0.0.1"
+dependencies = [
+ "fastly",
+ "regex",
+ "rust-embed",
+ "serde",
+ "serde_json",
+ "utoipa",
+]
+
+[[package]]
 name = "aho-corasick"
 version = "0.7.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -125,18 +137,6 @@ dependencies = [
  "thiserror",
  "time",
  "url",
-]
-
-[[package]]
-name = "fastly-compute-project"
-version = "0.1.0"
-dependencies = [
- "fastly",
- "regex",
- "rust-embed",
- "serde",
- "serde_json",
- "utoipa",
 ]
 
 [[package]]

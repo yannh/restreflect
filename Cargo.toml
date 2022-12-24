@@ -1,6 +1,6 @@
 [package]
-name = "fastly-compute-project"
-version = "0.1.0"
+name = "RestReflect"
+version = "0.0.1"
 authors = []
 edition = "2018"
 # Remove this line if you want to be able to publish this crate as open source on crates.io.
