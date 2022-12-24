@@ -1,5 +1,6 @@
 mod http_methods;
 mod request_inspection;
+mod status_codes;
 
 use std::path::Path;
 use fastly::http::{Method, StatusCode};
@@ -12,14 +13,14 @@ use utoipa::OpenApi;
 #[derive(OpenApi)]
 #[openapi(
   paths(
-    rr_http_statuses,
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
-    request_inspection::user_agent, request_inspection::ip
+    request_inspection::user_agent, request_inspection::ip,
+    status_codes::get, status_codes::post, status_codes::put, status_codes::patch, status_codes::delete,
   ),
   tags(
     (name = "HTTP Methods", description = "Testing different HTTP verbs"),
     (name = "Request inspection", description = "Inspect the request data"),
-    (name = "Status codes", description = "Generates responses with given status code")
+    (name = "Status codes", description = "Generates responses with given status code"),
   ),
 )]
 struct ApiDoc;
@@ -55,33 +56,6 @@ fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
     }
 }
 
-#[utoipa::path(
-    get,
-    path = "/status/{codes}",
-    tag = "Status codes",
-    responses(
-        (status = 100, description = "Informational Response"),
-        (status = 200, description = "Success"),
-        (status = 300, description = "Redirection"),
-        (status = 400, description = "Client Errors"),
-        (status = 500, description = "Server Errors"),
-    ),
-    params(
-        ("codes" = u16, Path, description = "Return status code or random status code if more than one are given"),
-    )
-)]
-fn rr_http_statuses(req: Request) -> Result<Response, Error> {
-    let caps = Regex::new(r"/status/(\d{3})$").unwrap()
-        .captures(req.get_path());
-    if caps.is_some() {
-        let status = caps.unwrap().get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
-        return Ok(Response::from_status(StatusCode::from_u16(status).unwrap_or(StatusCode::NOT_FOUND))
-            .with_content_type(mime::TEXT_HTML_UTF_8))
-    }
-
-    return Ok(Response::from_status(StatusCode::NOT_FOUND)
-        .with_content_type(mime::TEXT_HTML_UTF_8));
-}
 
 
 fn rr_serve_asset(req: Request) -> Result<Response, Error> {
@@ -166,7 +140,11 @@ fn main(req: Request) -> Result<Response, Error> {
     type RequestHandler = fn(Request) -> Result<Response, Error>;
     let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
         (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
-        (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), rr_http_statuses),
+        (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::get),
+        (Method::POST, Regex::new(r"^/status/(\d{3})$").unwrap(),status_codes::post),
+        (Method::PUT, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::put),
+        (Method::PATCH, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::patch),
+        (Method::DELETE, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::delete),
         (Method::GET, Regex::new(r"^/delete$").unwrap(), http_methods::delete),
         (Method::GET, Regex::new(r"^/get$").unwrap(), http_methods::get),
         (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_methods::patch),
