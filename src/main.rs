@@ -1,5 +1,6 @@
 mod assets;
 mod auth;
+mod dynamic_data;
 mod http_methods;
 mod images;
 mod request_inspection;
@@ -19,6 +20,7 @@ use utoipa::OpenApi;
 #[openapi(
   paths(
     auth::bearer,
+    dynamic_data::uuid,
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
     images::jpeg, images::png, images::svg, images::webp,
     request_inspection::user_agent, request_inspection::ip, request_inspection::headers,
@@ -28,6 +30,7 @@ use utoipa::OpenApi;
   ),
   tags(
     (name = "Auth", description = "Auth methods"),
+    (name = "Dynamic data", description = "Generates random and dynamic data"),
     (name = "HTTP Methods", description = "Testing different HTTP verbs"),
     (name = "Request inspection", description = "Inspect the request data"),
     (name = "Response formats", description = "Returns responses in different data formats"),
@@ -120,6 +123,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), Handler(request_inspection::user_agent)),
         (Method::GET, Regex::new(r"/ip$").unwrap(), Handler(request_inspection::ip)),
         (Method::GET, Regex::new(r"/bearer$").unwrap(), Handler(auth::bearer)),
+        (Method::GET, Regex::new(r"/uuid$").unwrap(), Handler(dynamic_data::uuid)),
         (Method::GET, Regex::new(r"/headers$").unwrap(), Handler(request_inspection::headers)),
     ];
 
