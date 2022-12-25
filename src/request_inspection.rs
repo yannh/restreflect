@@ -38,3 +38,22 @@ pub fn ip(req: &Request) -> Result<Response, Error> {
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body(to_string_pretty(&resp).unwrap()))
 }
+
+#[utoipa::path(
+    get,
+    path = "/headers",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The Request's headers", content_type = "application/json")
+    )
+)]
+/// Return the incoming request's HTTP headers
+pub fn headers(req: &Request) -> Result<Response, Error> {
+    let resp = json!({
+            "headers": crate::lib::req_headers(req),
+        });
+
+    return Ok(Response::from_status(StatusCode::OK)
+        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_body(to_string_pretty(&resp).unwrap()))
+}

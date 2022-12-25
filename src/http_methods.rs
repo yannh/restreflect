@@ -5,10 +5,6 @@ use serde_json::{json, to_string_pretty};
 use RESTReflect::req_to_json;
 
 fn http_methods(req: &Request) -> Result<Response, Error> {
-    let headers: HashMap<&str, &str>= req.get_headers()
-        .map(|m| (m.0.as_str(), m.1.to_str().unwrap_or("")))
-        .collect();
-
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body(req_to_json(req)))

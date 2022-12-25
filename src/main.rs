@@ -4,6 +4,7 @@ mod images;
 mod request_inspection;
 mod response_formats;
 mod status_codes;
+mod lib;
 
 use std::path::Path;
 use fastly::http::{Method, StatusCode};
@@ -18,7 +19,7 @@ use utoipa::OpenApi;
   paths(
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
     images::jpeg, images::png, images::svg, images::webp,
-    request_inspection::user_agent, request_inspection::ip,
+    request_inspection::user_agent, request_inspection::ip, request_inspection::headers,
     response_formats::html, response_formats::json, response_formats::xml, response_formats::encoding_utf8,
     response_formats::deny, response_formats::robots_txt,
     status_codes::get, status_codes::post, status_codes::put, status_codes::patch, status_codes::delete,
@@ -106,6 +107,7 @@ fn main(req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/utf8$").unwrap(), response_formats::encoding_utf8),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), request_inspection::user_agent),
         (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection::ip),
+        (Method::GET, Regex::new(r"/headers$").unwrap(), request_inspection::headers),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
     ];
     return route(routes, &req);
