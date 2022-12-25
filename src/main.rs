@@ -8,7 +8,7 @@ mod lib;
 
 use std::path::Path;
 use fastly::http::{Method, StatusCode};
-use fastly::{Error, mime, Request, Response};
+use fastly::{Error, http, mime, Request, Response};
 use regex::{Regex};
 use rust_embed::RustEmbed;
 use std::ffi::OsStr;
@@ -33,7 +33,7 @@ use utoipa::OpenApi;
 )]
 struct ApiDoc;
 
-fn rr_index(req: &mut Request) -> Result<Response, Error> {
+fn rr_index(req: &Request) -> Result<Response, Error> {
     let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body("E_NOTFOUND"));
@@ -47,13 +47,13 @@ fn rr_index(req: &mut Request) -> Result<Response, Error> {
     }
 }
 
-fn rr_swagger(req: &mut Request) -> Result<Response, Error> {
+fn rr_swagger(req: &Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(ApiDoc::openapi().to_pretty_json().unwrap()));
 }
 
-fn route(routes:Vec<(Method, Regex, fn(&mut Request) -> Result<Response, Error>)>, req: &mut Request) -> Result<Response, Error>{
+fn route(routes:Vec<(Method, Regex, fn(&Request) -> Result<Response, Error>)>, req: &Request) -> Result<Response, Error>{
    for (method, r, cb) in routes {
        if method == req.get_method() && r.is_match(req.get_path()) {
            return cb(req)
@@ -63,6 +63,18 @@ fn route(routes:Vec<(Method, Regex, fn(&mut Request) -> Result<Response, Error>)
    return Ok(Response::from_status(StatusCode::NOT_FOUND)
      .with_content_type(mime::TEXT_HTML_UTF_8));
 }
+
+fn route_mut(routes:Vec<(Method, Regex, fn(&mut Request) -> Result<Response, Error>)>, req: &mut Request) -> Result<Response, Error>{
+    for (method, r, cb) in routes {
+        if method == req.get_method() && r.is_match(req.get_path()) {
+            return cb(req)
+        }
+    }
+
+    return Ok(Response::from_status(StatusCode::NOT_FOUND)
+        .with_content_type(mime::TEXT_HTML_UTF_8));
+}
+
 
 #[fastly::main]
 fn main(mut req: Request) -> Result<Response, Error> {
@@ -82,19 +94,22 @@ fn main(mut req: Request) -> Result<Response, Error> {
             .with_content_type(assets::file_mimetype(path, mime::APPLICATION_OCTET_STREAM)));
     }
 
-    type RequestHandler = fn(&mut Request) -> Result<Response, Error>;
-    let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
-        (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
-        (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::get),
+    type RequestHandler = fn(&Request) -> Result<Response, Error>;
+    type MutRequestHandler = fn(&mut Request) -> Result<Response, Error>;
+    let mut routes: Vec<(Method, Regex, MutRequestHandler)> = vec![
         (Method::POST, Regex::new(r"^/status/(\d{3})$").unwrap(),status_codes::post),
         (Method::PUT, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::put),
         (Method::PATCH, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::patch),
-        (Method::DELETE, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::delete),
-        (Method::GET, Regex::new(r"^/delete$").unwrap(), http_methods::delete),
-        (Method::GET, Regex::new(r"^/get$").unwrap(), http_methods::get),
         (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_methods::patch),
         (Method::POST, Regex::new(r"^/post$").unwrap(), http_methods::post),
         (Method::PUT, Regex::new(r"^/put$").unwrap(), http_methods::put),
+    ];
+    let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
+        (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
+        (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::get),
+        (Method::DELETE, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::delete),
+        (Method::GET, Regex::new(r"^/delete$").unwrap(), http_methods::delete),
+        (Method::GET, Regex::new(r"^/get$").unwrap(), http_methods::get),
         (Method::GET, Regex::new(r"^/image/jpeg$").unwrap(), images::jpeg),
         (Method::GET, Regex::new(r"^/image/png$").unwrap(), images::png),
         (Method::GET, Regex::new(r"^/image/svg$").unwrap(), images::png),
@@ -110,5 +125,8 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/headers$").unwrap(), request_inspection::headers),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
     ];
-    return route(routes, &mut req);
+    return match *req.get_method() {
+        Method::GET | Method::DELETE => route(routes, &mut req),
+        _ =>route(routes, &mut req),
+    }
 }

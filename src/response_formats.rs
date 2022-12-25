@@ -14,7 +14,7 @@ use utoipa::OpenApi;
     )
 )]
 /// Returns a simple HTML document.
-pub fn html(req: &mut Request) -> Result<Response, Error> {
+pub fn html(req: &Request) -> Result<Response, Error> {
     return crate::assets::serve("html.html", mime::TEXT_HTML);
 }
 
@@ -27,7 +27,7 @@ pub fn html(req: &mut Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple JSON document.
-pub fn json(req: &mut Request) -> Result<Response, Error> {
+pub fn json(req: &Request) -> Result<Response, Error> {
     return crate::assets::serve("json.json", mime::APPLICATION_JSON);
 }
 
@@ -40,7 +40,7 @@ pub fn json(req: &mut Request) -> Result<Response, Error> {
     )
 )]
 /// Returns some robots.txt rules.
-pub fn robots_txt(req: &mut Request) -> Result<Response, Error> {
+pub fn robots_txt(req: &Request) -> Result<Response, Error> {
     return crate::assets::serve("robots.txt", mime::TEXT_PLAIN);
 }
 
@@ -53,7 +53,7 @@ pub fn robots_txt(req: &mut Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple XML document.
-pub fn xml(req: &mut Request) -> Result<Response, Error> {
+pub fn xml(req: &Request) -> Result<Response, Error> {
     let mime_xml: mime::Mime = "application/xml".parse().unwrap_or(mime::APPLICATION_OCTET_STREAM);
     return crate::assets::serve("robots.txt", mime_xml);
 }
@@ -67,7 +67,7 @@ pub fn xml(req: &mut Request) -> Result<Response, Error> {
     )
 )]
 /// Returns page denied by robots.txt rules.
-pub fn deny(req: &mut Request) -> Result<Response, Error> {
+pub fn deny(req: &Request) -> Result<Response, Error> {
     return crate::assets::serve("deny.txt", mime::TEXT_PLAIN);
 }
 
@@ -80,6 +80,6 @@ pub fn deny(req: &mut Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a UTF-8 encoded body.
-pub fn encoding_utf8(req: &mut Request) -> Result<Response, Error> {
+pub fn encoding_utf8(req: &Request) -> Result<Response, Error> {
     return crate::assets::serve("utf8.txt", mime::TEXT_PLAIN);
 }

@@ -34,7 +34,7 @@ fn rr_http_statuses(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// Return status code or random status code if more than one is given
-pub fn get(req: &mut Request) -> Result<Response, Error> {
+pub fn get(req: &Request) -> Result<Response, Error> {
     return rr_http_statuses(req)
 }
 
@@ -118,6 +118,6 @@ pub fn patch(req: &mut Request) -> Result<Response, Error> {
     )
 )]
 /// Return status code or random status code if more than one is given
-pub fn delete(req: &mut Request) -> Result<Response, Error> {
+pub fn delete(req: &Request) -> Result<Response, Error> {
     return rr_http_statuses(req)
 }

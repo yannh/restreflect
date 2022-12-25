@@ -10,7 +10,7 @@ use serde_json::{json, to_string_pretty};
         (status = 200, description = "The request’s User-Agent header.", content_type = "application/json")
     )
 )]
-pub fn user_agent(req: &mut Request) -> Result<Response, Error> {
+pub fn user_agent(req: &Request) -> Result<Response, Error> {
     let ua = req.get_header("user-agent").unwrap().to_str().unwrap();
     let resp = json!({
             "user-agent": ua
@@ -29,7 +29,7 @@ pub fn user_agent(req: &mut Request) -> Result<Response, Error> {
         (status = 200, description = "The Requester's IP address", content_type = "application/json")
     )
 )]
-pub fn ip(req: &mut Request) -> Result<Response, Error> {
+pub fn ip(req: &Request) -> Result<Response, Error> {
     let resp = json!({
             "ip": req.get_client_ip_addr()
         });
@@ -48,7 +48,7 @@ pub fn ip(req: &mut Request) -> Result<Response, Error> {
     )
 )]
 /// Return the incoming request's HTTP headers
-pub fn headers(req: &mut Request) -> Result<Response, Error> {
+pub fn headers(req: &Request) -> Result<Response, Error> {
     let resp = json!({
             "headers": crate::lib::req_headers(req),
         });
