@@ -17,10 +17,15 @@ pub fn req_to_json(req: &mut Request) -> String {
 
     let resp = match *req.get_method() {
         Method::POST => {
+            let fo: HashMap<&str, &str> = HashMap::new();
             let f = req.take_body_form::<Vec<(String, String)>>().unwrap();
+            let fo: HashMap<&str, &str> = f
+                .iter()
+                .map(|m| (m.0.as_str(), m.1.as_str()))
+                .collect();
             json!({
             "args": args,
-            "form": f,
+            "form": fo,
             "headers": req_headers(req),
             "origin": req.get_client_ip_addr(),
             "url": req.get_url_str()
