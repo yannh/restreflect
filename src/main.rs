@@ -126,7 +126,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
     ];
     return match *req.get_method() {
-        Method::GET | Method::DELETE => route(routes, &mut req),
-        _ => route_mut(routes_mut, &mut req),
+        Method::PATCH | Method::POST | Method::PUT => route_mut(routes_mut, &mut req),
+        _ => route(routes, &mut req),
     }
 }
