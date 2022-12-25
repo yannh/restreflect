@@ -25,7 +25,7 @@ pub fn req_to_json(req: &Request) -> String {
     return to_string_pretty(&resp).unwrap();
 }
 
-pub fn req_to_json_mut(req: &mut Request) -> String {
+pub fn req_with_body_to_json(req: &mut Request) -> String {
     let arg_pairs: Vec<(String, String)> = req.get_query().unwrap();
     let args: HashMap<&str, &str> = arg_pairs.iter().map(|m| (m.0.as_str(), m.1.as_str()))
         .collect();

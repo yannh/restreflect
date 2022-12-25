@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
-use RESTReflect::{req_to_json, req_to_json_mut};
+use RESTReflect::{req_to_json, req_with_body_to_json};
 
 fn http_methods(req: &Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
@@ -13,7 +13,7 @@ fn http_methods(req: &Request) -> Result<Response, Error> {
 fn http_methods_mut(req: &mut Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body(req_to_json_mut(req)))
+        .with_body(req_with_body_to_json(req)))
 }
 
 #[utoipa::path(
