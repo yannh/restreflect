@@ -96,7 +96,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
 
     type RequestHandler = fn(&Request) -> Result<Response, Error>;
     type MutRequestHandler = fn(&mut Request) -> Result<Response, Error>;
-    let mut routes: Vec<(Method, Regex, MutRequestHandler)> = vec![
+    let mut routes_mut: Vec<(Method, Regex, MutRequestHandler)> = vec![
         (Method::POST, Regex::new(r"^/status/(\d{3})$").unwrap(),status_codes::post),
         (Method::PUT, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::put),
         (Method::PATCH, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::patch),
@@ -127,6 +127,6 @@ fn main(mut req: Request) -> Result<Response, Error> {
     ];
     return match *req.get_method() {
         Method::GET | Method::DELETE => route(routes, &mut req),
-        _ =>route(routes, &mut req),
+        _ => route_mut(routes_mut, &mut req),
     }
 }
