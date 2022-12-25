@@ -33,6 +33,11 @@ use utoipa::OpenApi;
 )]
 struct ApiDoc;
 
+enum ReqHandler {
+    MutHandler (fn(&mut Request) -> Result<Response, Error>),
+    Handler(fn(&Request) -> Result<Response, Error>),
+}
+
 fn rr_index(req: &Request) -> Result<Response, Error> {
     let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML_UTF_8)
@@ -53,10 +58,13 @@ fn rr_swagger(req: &Request) -> Result<Response, Error> {
         .with_body(ApiDoc::openapi().to_pretty_json().unwrap()));
 }
 
-fn route(routes:Vec<(Method, Regex, fn(&Request) -> Result<Response, Error>)>, req: &Request) -> Result<Response, Error>{
-   for (method, r, cb) in routes {
+fn route(routes:Vec<(Method, Regex, ReqHandler)>, req: &mut Request) -> Result<Response, Error>{
+   for (method, r, handler) in routes {
        if method == req.get_method() && r.is_match(req.get_path()) {
-           return cb(req)
+           match handler {
+               ReqHandler::MutHandler(cb) => cb(req),
+               ReqHandler::Handler(cb) => cb(req),
+           };
        }
    }
 
@@ -94,40 +102,33 @@ fn main(mut req: Request) -> Result<Response, Error> {
             .with_content_type(assets::file_mimetype(path, mime::APPLICATION_OCTET_STREAM)));
     }
 
-    type RequestHandler = fn(&Request) -> Result<Response, Error>;
-    type MutRequestHandler = fn(&mut Request) -> Result<Response, Error>;
-    let mut routes_mut: Vec<(Method, Regex, MutRequestHandler)> = vec![
-        (Method::POST, Regex::new(r"^/status/(\d{3})$").unwrap(),status_codes::post),
-        (Method::PUT, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::put),
-        (Method::PATCH, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::patch),
-        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), http_methods::patch),
-        (Method::POST, Regex::new(r"^/post$").unwrap(), http_methods::post),
-        (Method::PUT, Regex::new(r"^/put$").unwrap(), http_methods::put),
+    use ReqHandler::*;
+    let routes: Vec<(Method, Regex, ReqHandler)> = vec![
+        (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), Handler(rr_index)),
+        (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), Handler(status_codes::get)),
+        (Method::POST, Regex::new(r"^/status/(\d{3})$").unwrap(), MutHandler(status_codes::post)),
+        (Method::PUT, Regex::new(r"^/status/(\d{3})$").unwrap(), MutHandler(status_codes::put)),
+        (Method::PATCH, Regex::new(r"^/status/(\d{3})$").unwrap(), MutHandler(status_codes::patch)),
+        (Method::DELETE, Regex::new(r"^/status/(\d{3})$").unwrap(), Handler(status_codes::delete)),
+        (Method::PATCH, Regex::new(r"^/patch$").unwrap(), MutHandler(http_methods::patch)),
+        (Method::POST, Regex::new(r"^/post$").unwrap(), MutHandler(http_methods::post)),
+        (Method::PUT, Regex::new(r"^/put$").unwrap(), MutHandler(http_methods::put)),
+        (Method::GET, Regex::new(r"^/delete$").unwrap(), Handler(http_methods::delete)),
+        (Method::GET, Regex::new(r"^/get$").unwrap(), Handler(http_methods::get)),
+        (Method::GET, Regex::new(r"^/image/jpeg$").unwrap(), Handler(images::jpeg)),
+        (Method::GET, Regex::new(r"^/image/png$").unwrap(), Handler(images::png)),
+        (Method::GET, Regex::new(r"^/image/svg$").unwrap(), Handler(images::png)),
+        (Method::GET, Regex::new(r"^/image/webp$").unwrap(), Handler(images::webp)),
+        (Method::GET, Regex::new(r"/html$").unwrap(), Handler(response_formats::html)),
+        (Method::GET, Regex::new(r"/json$").unwrap(), Handler(response_formats::json)),
+        (Method::GET, Regex::new(r"/robots\.txt$").unwrap(), Handler(response_formats::robots_txt)),
+        (Method::GET, Regex::new(r"/xml$").unwrap(), Handler(response_formats::xml)),
+        (Method::GET, Regex::new(r"/deny$").unwrap(), Handler(response_formats::deny)),
+        (Method::GET, Regex::new(r"/utf8$").unwrap(), Handler(response_formats::encoding_utf8)),
+        (Method::GET, Regex::new(r"/user-agent$").unwrap(), Handler(request_inspection::user_agent)),
+        (Method::GET, Regex::new(r"/ip$").unwrap(), Handler(request_inspection::ip)),
+        (Method::GET, Regex::new(r"/headers$").unwrap(), Handler(request_inspection::headers)),
+        (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), Handler(rr_swagger)),
     ];
-    let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
-        (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
-        (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::get),
-        (Method::DELETE, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::delete),
-        (Method::GET, Regex::new(r"^/delete$").unwrap(), http_methods::delete),
-        (Method::GET, Regex::new(r"^/get$").unwrap(), http_methods::get),
-        (Method::GET, Regex::new(r"^/image/jpeg$").unwrap(), images::jpeg),
-        (Method::GET, Regex::new(r"^/image/png$").unwrap(), images::png),
-        (Method::GET, Regex::new(r"^/image/svg$").unwrap(), images::png),
-        (Method::GET, Regex::new(r"^/image/webp$").unwrap(), images::webp),
-        (Method::GET, Regex::new(r"/html$").unwrap(), response_formats::html),
-        (Method::GET, Regex::new(r"/json$").unwrap(), response_formats::json),
-        (Method::GET, Regex::new(r"/robots\.txt$").unwrap(), response_formats::robots_txt),
-        (Method::GET, Regex::new(r"/xml$").unwrap(), response_formats::xml),
-        (Method::GET, Regex::new(r"/deny$").unwrap(), response_formats::deny),
-        (Method::GET, Regex::new(r"/utf8$").unwrap(), response_formats::encoding_utf8),
-        (Method::GET, Regex::new(r"/user-agent$").unwrap(), request_inspection::user_agent),
-        (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection::ip),
-        (Method::GET, Regex::new(r"/headers$").unwrap(), request_inspection::headers),
-        (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
-    ];
-    return match *req.get_method() {
-        // POST, PATCH, PUT involve reading the request's Body, which requires a mutable ref
-        Method::PATCH | Method::POST | Method::PUT => route_mut(routes_mut, &mut req),
-        _ => route(routes, &mut req),
-    }
+    return route(routes, &mut req);
 }
