@@ -6,13 +6,13 @@ use RESTReflect::{req_to_json, req_with_body_to_json};
 
 fn http_methods(req: &Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_content_type(mime::APPLICATION_JSON)
         .with_body(req_to_json(req)))
 }
 
 fn http_methods_mut(req: &mut Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_content_type(mime::APPLICATION_JSON)
         .with_body(req_with_body_to_json(req)))
 }
 
