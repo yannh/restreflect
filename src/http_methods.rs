@@ -39,7 +39,7 @@ pub fn get(req: &Request) -> Result<Response, Error> {
 )]
 /// The request's POST parameter
 pub fn post(req: &mut Request) -> Result<Response, Error> {
-    return http_methods(req)
+    return http_methods_mut(req)
 }
 
 #[utoipa::path(
