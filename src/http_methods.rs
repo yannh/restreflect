@@ -4,7 +4,7 @@ use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
 use RESTReflect::req_to_json;
 
-fn http_methods(req: &Request) -> Result<Response, Error> {
+fn http_methods(req: &mut Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body(req_to_json(req)))
@@ -19,7 +19,7 @@ fn http_methods(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// The request's query parameter
-pub fn get(req: &Request) -> Result<Response, Error> {
+pub fn get(req: &mut Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -32,7 +32,7 @@ pub fn get(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// The request's POST parameter
-pub fn post(req: &Request) -> Result<Response, Error> {
+pub fn post(req: &mut Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -45,7 +45,7 @@ pub fn post(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// The request's PUT parameter
-pub fn put(req: &Request) -> Result<Response, Error> {
+pub fn put(req: &mut Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -58,7 +58,7 @@ pub fn put(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// The request's PATCH parameter
-pub fn patch(req: &Request) -> Result<Response, Error> {
+pub fn patch(req: &mut Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -71,7 +71,7 @@ pub fn patch(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// The request's DELETE parameter
-pub fn delete(req: &Request) -> Result<Response, Error> {
+pub fn delete(req: &mut Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 

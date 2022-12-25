@@ -10,17 +10,29 @@ pub fn req_headers(req: &Request) -> HashMap<&str, &str> {
         .collect();
 }
 
-pub fn req_to_json(req: &Request) -> String {
+pub fn req_to_json(req: &mut Request) -> String {
     let arg_pairs: Vec<(String, String)> = req.get_query().unwrap();
     let args: HashMap<&str, &str> = arg_pairs.iter().map(|m| (m.0.as_str(), m.1.as_str()))
         .collect();
 
-    let resp = json!({
+    let resp = match *req.get_method() {
+        Method::POST => {
+            let f = req.take_body_form::<Vec<(String, String)>>().unwrap();
+            json!({
+            "args": args,
+            "form": f,
+            "headers": req_headers(req),
+            "origin": req.get_client_ip_addr(),
+            "url": req.get_url_str()
+            })
+        },
+        _ => json!({
             "args": args,
             "headers": req_headers(req),
             "origin": req.get_client_ip_addr(),
             "url": req.get_url_str()
-        });
+        }),
+    };
 
     return to_string_pretty(&resp).unwrap();
 }
