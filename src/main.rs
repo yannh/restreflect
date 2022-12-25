@@ -92,7 +92,8 @@ fn main(mut req: Request) -> Result<Response, Error> {
 
     use ReqHandler::*;
     let routes: Vec<(Method, Regex, ReqHandler)> = vec![
-        (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), Handler(rr_index)),
+        (Method::GET, Regex::new(r"/(index.html)?$").unwrap(), Handler(rr_index)),
+        (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), Handler(rr_swagger)),
         (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), Handler(status_codes::get)),
         (Method::POST, Regex::new(r"^/status/(\d{3})$").unwrap(), MutHandler(status_codes::post)),
         (Method::PUT, Regex::new(r"^/status/(\d{3})$").unwrap(), MutHandler(status_codes::put)),
@@ -116,7 +117,6 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), Handler(request_inspection::user_agent)),
         (Method::GET, Regex::new(r"/ip$").unwrap(), Handler(request_inspection::ip)),
         (Method::GET, Regex::new(r"/headers$").unwrap(), Handler(request_inspection::headers)),
-        (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), Handler(rr_swagger)),
     ];
     return route(routes, &mut req);
 }
