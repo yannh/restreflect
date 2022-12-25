@@ -17,12 +17,17 @@ pub fn req_to_json(req: &mut Request) -> String {
 
     let resp = match *req.get_method() {
         Method::POST => {
-            let fo: HashMap<&str, &str> = HashMap::new();
-            let f = req.take_body_form::<Vec<(String, String)>>().unwrap();
-            let fo: HashMap<&str, &str> = f
-                .iter()
-                .map(|m| (m.0.as_str(), m.1.as_str()))
-                .collect();
+            let mut f: Vec<(String, String)> = Vec::new();
+            let mut fo: HashMap<&str, &str> = HashMap::new();
+
+            if req.get_header("content-type").unwrap() == "application/x-www-form-urlencoded" {
+                f = req.take_body_form::<Vec<(String, String)>>().unwrap();
+                fo = f
+                    .iter()
+                    .map(|m| (m.0.as_str(), m.1.as_str()))
+                    .collect();
+            }
+
             json!({
             "args": args,
             "form": fo,
