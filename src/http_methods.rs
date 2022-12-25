@@ -3,7 +3,7 @@ use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
 
-fn http_methods(req: Request) -> Result<Response, Error> {
+fn http_methods(req: &Request) -> Result<Response, Error> {
     let headers: HashMap<&str, &str>= req.get_headers()
         .map(|m| (m.0.as_str(), m.1.to_str().unwrap_or("")))
         .collect();
@@ -28,7 +28,7 @@ fn http_methods(req: Request) -> Result<Response, Error> {
     )
 )]
 /// The request's query parameter
-pub fn get(req: Request) -> Result<Response, Error> {
+pub fn get(req: &Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -41,7 +41,7 @@ pub fn get(req: Request) -> Result<Response, Error> {
     )
 )]
 /// The request's POST parameter
-pub fn post(req: Request) -> Result<Response, Error> {
+pub fn post(req: &Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -54,7 +54,7 @@ pub fn post(req: Request) -> Result<Response, Error> {
     )
 )]
 /// The request's PUT parameter
-pub fn put(req: Request) -> Result<Response, Error> {
+pub fn put(req: &Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -67,7 +67,7 @@ pub fn put(req: Request) -> Result<Response, Error> {
     )
 )]
 /// The request's PATCH parameter
-pub fn patch(req: Request) -> Result<Response, Error> {
+pub fn patch(req: &Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 
@@ -80,7 +80,7 @@ pub fn patch(req: Request) -> Result<Response, Error> {
     )
 )]
 /// The request's DELETE parameter
-pub fn delete(req: Request) -> Result<Response, Error> {
+pub fn delete(req: &Request) -> Result<Response, Error> {
     return http_methods(req)
 }
 

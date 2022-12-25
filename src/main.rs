@@ -32,7 +32,7 @@ use utoipa::OpenApi;
 )]
 struct ApiDoc;
 
-fn rr_index(req: Request) -> Result<Response, Error> {
+fn rr_index(req: &Request) -> Result<Response, Error> {
     let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body("E_NOTFOUND"));
@@ -46,13 +46,13 @@ fn rr_index(req: Request) -> Result<Response, Error> {
     }
 }
 
-fn rr_swagger(req: Request) -> Result<Response, Error> {
+fn rr_swagger(req: &Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(ApiDoc::openapi().to_pretty_json().unwrap()));
 }
 
-fn route(routes:Vec<(Method, Regex, fn(Request) -> Result<Response, Error>)>, req: Request) -> Result<Response, Error>{
+fn route(routes:Vec<(Method, Regex, fn(&Request) -> Result<Response, Error>)>, req: &Request) -> Result<Response, Error>{
    for (method, r, cb) in routes {
        if method == req.get_method() && r.is_match(req.get_path()) {
            return cb(req)
@@ -81,7 +81,7 @@ fn main(req: Request) -> Result<Response, Error> {
             .with_content_type(assets::file_mimetype(path, mime::APPLICATION_OCTET_STREAM)));
     }
 
-    type RequestHandler = fn(Request) -> Result<Response, Error>;
+    type RequestHandler = fn(&Request) -> Result<Response, Error>;
     let mut routes: Vec<(Method, Regex, RequestHandler)> = vec![
         (Method::GET, Regex::new(r"/(index(\.html)?)?$").unwrap(), rr_index),
         (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), status_codes::get),
@@ -108,5 +108,5 @@ fn main(req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/ip$").unwrap(), request_inspection::ip),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), rr_swagger),
     ];
-    return route(routes, req);
+    return route(routes, &req);
 }

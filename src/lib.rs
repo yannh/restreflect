@@ -3,7 +3,7 @@ use fastly::{Error, mime, Request, Response};
 use std::collections::HashMap;
 use serde_json::{json, to_string_pretty};
 
-pub fn req_to_json(req: Request) -> String {
+pub fn req_to_json(req: &Request) -> String {
     let headers: HashMap<&str, &str>= req.get_headers()
         .map(|m| (m.0.as_str(), m.1.to_str().unwrap_or("")))
         .collect();

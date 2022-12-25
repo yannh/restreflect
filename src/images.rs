@@ -15,7 +15,7 @@ use utoipa::OpenApi;
     )
 )]
 /// Returns a simple JPEG image.
-pub fn jpeg(req: Request) -> Result<Response, Error> {
+pub fn jpeg(req: &Request) -> Result<Response, Error> {
     return crate::assets::serve("jpeg.jpeg", mime::IMAGE_JPEG);
 }
 
@@ -28,7 +28,7 @@ pub fn jpeg(req: Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple PNG image.
-pub fn png(req: Request) -> Result<Response, Error> {
+pub fn png(req: &Request) -> Result<Response, Error> {
     return crate::assets::serve("png.png", mime::IMAGE_PNG);
 }
 
@@ -41,7 +41,7 @@ pub fn png(req: Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple SVG image.
-pub fn svg(req: Request) -> Result<Response, Error> {
+pub fn svg(req: &Request) -> Result<Response, Error> {
     return crate::assets::serve("svg.svg", mime::IMAGE_SVG);
 }
 
@@ -54,7 +54,7 @@ pub fn svg(req: Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple WEBP image.
-pub fn webp(req: Request) -> Result<Response, Error> {
+pub fn webp(req: &Request) -> Result<Response, Error> {
     let mime_webp: mime::Mime = "image/webp".parse().unwrap_or(mime::APPLICATION_OCTET_STREAM);
     return crate::assets::serve("webp.webp", mime_webp);
 }
