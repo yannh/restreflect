@@ -72,18 +72,6 @@ fn route(routes:Vec<(Method, Regex, ReqHandler)>, req: &mut Request) -> Result<R
      .with_content_type(mime::TEXT_HTML_UTF_8));
 }
 
-fn route_mut(routes:Vec<(Method, Regex, fn(&mut Request) -> Result<Response, Error>)>, req: &mut Request) -> Result<Response, Error>{
-    for (method, r, cb) in routes {
-        if method == req.get_method() && r.is_match(req.get_path()) {
-            return cb(req)
-        }
-    }
-
-    return Ok(Response::from_status(StatusCode::NOT_FOUND)
-        .with_content_type(mime::TEXT_HTML_UTF_8));
-}
-
-
 #[fastly::main]
 fn main(mut req: Request) -> Result<Response, Error> {
     let path = match req.get_path() {
