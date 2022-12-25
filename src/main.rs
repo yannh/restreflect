@@ -61,7 +61,7 @@ fn rr_swagger(req: &Request) -> Result<Response, Error> {
 fn route(routes:Vec<(Method, Regex, ReqHandler)>, req: &mut Request) -> Result<Response, Error>{
    for (method, r, handler) in routes {
        if method == req.get_method() && r.is_match(req.get_path()) {
-           match handler {
+           return match handler {
                ReqHandler::MutHandler(cb) => cb(req),
                ReqHandler::Handler(cb) => cb(req),
            };
@@ -118,5 +118,9 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/ip$").unwrap(), Handler(request_inspection::ip)),
         (Method::GET, Regex::new(r"/headers$").unwrap(), Handler(request_inspection::headers)),
     ];
-    return route(routes, &mut req);
+    return route(routes, &mut req).map (|resp|
+        resp
+            .with_header("access-control-allow-origin", "*")
+            .with_header("access-control-allow-credentials", "true")
+    );
 }
