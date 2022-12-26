@@ -52,7 +52,7 @@ enum ReqHandler {
     Handler(fn(&Request) -> Result<Response, Error>),
 }
 
-fn rr_index(req: &Request) -> Result<Response, Error> {
+fn rr_index(_: &Request) -> Result<Response, Error> {
     let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body("E_NOTFOUND"));
@@ -66,7 +66,7 @@ fn rr_index(req: &Request) -> Result<Response, Error> {
     }
 }
 
-fn rr_swagger(req: &Request) -> Result<Response, Error> {
+fn rr_swagger(_: &Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(ApiDoc::openapi().to_pretty_json().unwrap()));
@@ -120,7 +120,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"^/get$").unwrap(), Handler(http_methods::get)),
         (Method::GET, Regex::new(r"^/image/jpeg$").unwrap(), Handler(images::jpeg)),
         (Method::GET, Regex::new(r"^/image/png$").unwrap(), Handler(images::png)),
-        (Method::GET, Regex::new(r"^/image/svg$").unwrap(), Handler(images::png)),
+        (Method::GET, Regex::new(r"^/image/svg$").unwrap(), Handler(images::svg)),
         (Method::GET, Regex::new(r"^/image/webp$").unwrap(), Handler(images::webp)),
         (Method::GET, Regex::new(r"/deflate$").unwrap(), Handler(response_formats::deflate)),
         (Method::GET, Regex::new(r"/brotli$").unwrap(), Handler(response_formats::brotli)),

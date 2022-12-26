@@ -41,7 +41,7 @@ pub fn png(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple SVG image.
-pub fn svg(req: &Request) -> Result<Response, Error> {
+pub fn svg(_: &Request) -> Result<Response, Error> {
     return crate::assets::serve("svg.svg", mime::IMAGE_SVG);
 }
 
