@@ -21,6 +21,7 @@ serde_json = "1.0"
 rust-embed="6.3.0"
 utoipa = "2"
 brotli = "3"
+base64 = "0.20"
 
 [dependencies.deflate]
 version = "1.0.0"

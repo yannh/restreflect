@@ -4,6 +4,7 @@ use serde_json::{json, to_string_pretty};
 use uuid::Uuid;
 use std::{thread, time};
 use regex::Regex;
+use base64::decode;
 use crate::lib::req_to_json;
 
 #[utoipa::path(
@@ -25,6 +26,39 @@ pub fn uuid(req: &Request) -> Result<Response, Error> {
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap()));
 }
+
+#[utoipa::path(
+    get,
+    path = "/base64/{value}",
+    tag = "Dynamic data",
+    params(
+        ("value" = u16, Path, description = "String in base64 to decode."),
+    ),
+    responses(
+        (status = 200, description = "Decoded base64 content.", content_type = "text/html"),
+    )
+)]
+/// Decodes base64-encoded string.
+pub fn base64(req: &Request) -> Result<Response, Error> {
+    let caps = Regex::new(r"/base64/([A-Za-z0-9+/=]{1,4096})$").unwrap()
+        .captures(req.get_path());
+    if caps.is_some() {
+        let b64 = caps.unwrap().get(1).map(|m| m.as_str().as_bytes()).unwrap();
+        return match decode(&b64) {
+            Ok(decoded) => Ok(Response::from_status(StatusCode::OK)
+                .with_content_type(mime::APPLICATION_JSON)
+                .with_body(decoded)),
+            Err(_) => Ok(Response::from_status(StatusCode::BAD_REQUEST)
+                .with_content_type(mime::TEXT_PLAIN)
+                .with_body("Provided data not in base64 format. Try SFRUUEJJTiBpcyBhd2Vzb21l")),
+        }
+    }
+
+    return Ok(Response::from_status(StatusCode::BAD_REQUEST)
+        .with_content_type(mime::TEXT_HTML)
+        .with_body("Could not extract base64 data"));
+}
+
 
 #[utoipa::path(
     get,
