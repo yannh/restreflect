@@ -115,7 +115,6 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"^/image/svg$").unwrap(), Handler(images::png)),
         (Method::GET, Regex::new(r"^/image/webp$").unwrap(), Handler(images::webp)),
         (Method::GET, Regex::new(r"/brotli$").unwrap(), Handler(response_formats::brotli)),
-        (Method::GET, Regex::new(r"/deflate$").unwrap(), Handler(response_formats::deflate)),
         (Method::GET, Regex::new(r"/html$").unwrap(), Handler(response_formats::html)),
         (Method::GET, Regex::new(r"/json$").unwrap(), Handler(response_formats::json)),
         (Method::GET, Regex::new(r"/robots\.txt$").unwrap(), Handler(response_formats::robots_txt)),
