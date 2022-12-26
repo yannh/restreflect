@@ -24,7 +24,7 @@ use utoipa::OpenApi;
     dynamic_data::uuid,
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
     images::jpeg, images::png, images::svg, images::webp,
-    redirects::relative_redirect,
+    redirects::relative_redirect, redirects::redirect,
     request_inspection::user_agent, request_inspection::ip, request_inspection::headers,
     response_formats::html, response_formats::json, response_formats::xml, response_formats::encoding_utf8,
     response_formats::deny, response_formats::robots_txt, response_formats::brotli,
@@ -133,6 +133,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/uuid$").unwrap(), Handler(dynamic_data::uuid)),
         (Method::GET, Regex::new(r"/headers$").unwrap(), Handler(request_inspection::headers)),
         (Method::GET, Regex::new(r"/relative-redirect/(\d{1})$").unwrap(), Handler(redirects::relative_redirect)),
+        (Method::GET, Regex::new(r"/redirect/(\d{1})$").unwrap(), Handler(redirects::redirect)),
     ];
 
     return route(routes, &mut req).map (|resp|

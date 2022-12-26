@@ -33,3 +33,19 @@ pub fn relative_redirect(req: &Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML))
 }
+
+#[utoipa::path(
+    get,
+    path = "/redirect/{n}",
+    tag = "Redirects",
+    params(
+        ("n" = u16, Path, description = "Number of times to redirect"),
+    ),
+    responses(
+        (status = 302, description = "A redirection.", content_type = "text/html"),
+    )
+)]
+/// 302 redirects n times.
+pub fn redirect(req: &Request) -> Result<Response, Error> {
+    return relative_redirect(req)
+}
