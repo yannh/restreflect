@@ -18,7 +18,7 @@ pub fn user_agent(req: &Request) -> Result<Response, Error> {
         });
 
     return Ok(Response::from_status(StatusCode::OK)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap()))
 }
 
@@ -37,7 +37,7 @@ pub fn ip(req: &Request) -> Result<Response, Error> {
         });
 
     return Ok(Response::from_status(StatusCode::OK)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap()))
 }
 
@@ -56,6 +56,6 @@ pub fn headers(req: &Request) -> Result<Response, Error> {
         });
 
     return Ok(Response::from_status(StatusCode::OK)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
+        .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap()))
 }

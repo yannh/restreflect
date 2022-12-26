@@ -5,6 +5,7 @@ mod http_methods;
 mod images;
 mod redirects;
 mod request_inspection;
+mod response_inspection;
 mod response_formats;
 mod status_codes;
 mod lib;
@@ -26,6 +27,7 @@ use utoipa::OpenApi;
     images::jpeg, images::png, images::svg, images::webp,
     redirects::relative_redirect, redirects::redirect,
     request_inspection::user_agent, request_inspection::ip, request_inspection::headers,
+    response_inspection::response_headers,
     response_formats::html, response_formats::json, response_formats::xml, response_formats::encoding_utf8,
     response_formats::deny, response_formats::robots_txt, response_formats::brotli,
     response_formats::deflate, response_formats::gzip,
@@ -37,6 +39,7 @@ use utoipa::OpenApi;
     (name = "HTTP Methods", description = "Testing different HTTP verbs"),
     (name = "Redirects", description = "Returns different redirect responses"),
     (name = "Request inspection", description = "Inspect the request data"),
+    (name = "Response inspection", description = "Inspect the response data like caching and headers"),
     (name = "Response formats", description = "Returns responses in different data formats"),
     (name = "Status codes", description = "Generates responses with given status code"),
   ),
@@ -134,6 +137,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/uuid$").unwrap(), Handler(dynamic_data::uuid)),
         (Method::GET, Regex::new(r"/delay/(\d{1,2})$").unwrap(), Handler(dynamic_data::delay)),
         (Method::GET, Regex::new(r"/headers$").unwrap(), Handler(request_inspection::headers)),
+        (Method::GET, Regex::new(r"/response-headers$").unwrap(), Handler(response_inspection::response_headers)),
         (Method::GET, Regex::new(r"/relative-redirect/(\d{1})$").unwrap(), Handler(redirects::relative_redirect)),
         (Method::GET, Regex::new(r"/redirect/(\d{1})$").unwrap(), Handler(redirects::redirect)),
     ];
