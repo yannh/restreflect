@@ -16,7 +16,7 @@ use crate::lib::{req_to_json, req_with_body_to_json};
     )
 )]
 /// Return a UUID4.
-pub fn uuid(req: &Request) -> Result<Response, Error> {
+pub fn uuid(_: &Request) -> Result<Response, Error> {
     let resp = json!({
         "uuid": Uuid::new_v4().to_string(),
     });

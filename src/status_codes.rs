@@ -1,7 +1,5 @@
-use std::collections::HashMap;
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
-use serde_json::{json, to_string_pretty};
 use regex::Regex;
 
 fn rr_http_statuses(req: &Request) -> Result<Response, Error> {

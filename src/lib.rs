@@ -1,5 +1,5 @@
-use fastly::http::{Method, StatusCode};
-use fastly::{Error, mime, Request, Response};
+use fastly::http::Method;
+use fastly::Request;
 use std::collections::HashMap;
 use serde_json::{json, to_string_pretty};
 
@@ -32,7 +32,7 @@ pub fn req_with_body_to_json(req: &mut Request) -> String {
 
     let resp = match *req.get_method() {
         Method::POST => {
-            let mut f: Vec<(String, String)> = Vec::new();
+            let mut f: Vec<(String, String)>;
             let mut fo: HashMap<&str, &str> = HashMap::new();
 
             if req.get_header("content-type").unwrap() == "application/x-www-form-urlencoded" {

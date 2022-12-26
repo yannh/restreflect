@@ -1,8 +1,6 @@
-use fastly::http::{Method, StatusCode};
+use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
-use std::ffi::OsStr;
-use std::fmt::Write;
-use RESTReflect::{req_to_json, req_with_body_to_json};
+use RESTReflect::req_to_json;
 use deflate::{deflate_bytes, deflate_bytes_gzip};
 
 #[utoipa::path(
@@ -73,7 +71,7 @@ pub fn gzip(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple HTML document.
-pub fn html(req: &Request) -> Result<Response, Error> {
+pub fn html(_: &Request) -> Result<Response, Error> {
     return crate::assets::serve("html.html", mime::TEXT_HTML);
 }
 
@@ -86,7 +84,7 @@ pub fn html(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple JSON document.
-pub fn json(req: &Request) -> Result<Response, Error> {
+pub fn json(_: &Request) -> Result<Response, Error> {
     return crate::assets::serve("json.json", mime::APPLICATION_JSON);
 }
 
@@ -99,7 +97,7 @@ pub fn json(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// Returns some robots.txt rules.
-pub fn robots_txt(req: &Request) -> Result<Response, Error> {
+pub fn robots_txt(_: &Request) -> Result<Response, Error> {
     return crate::assets::serve("robots.txt", mime::TEXT_PLAIN);
 }
 
@@ -112,7 +110,7 @@ pub fn robots_txt(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a simple XML document.
-pub fn xml(req: &Request) -> Result<Response, Error> {
+pub fn xml(_: &Request) -> Result<Response, Error> {
     let mime_xml: mime::Mime = "application/xml".parse().unwrap_or(mime::APPLICATION_OCTET_STREAM);
     return crate::assets::serve("robots.txt", mime_xml);
 }
@@ -126,7 +124,7 @@ pub fn xml(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// Returns page denied by robots.txt rules.
-pub fn deny(req: &Request) -> Result<Response, Error> {
+pub fn deny(_: &Request) -> Result<Response, Error> {
     return crate::assets::serve("deny.txt", mime::TEXT_PLAIN);
 }
 
@@ -139,6 +137,6 @@ pub fn deny(req: &Request) -> Result<Response, Error> {
     )
 )]
 /// Returns a UTF-8 encoded body.
-pub fn encoding_utf8(req: &Request) -> Result<Response, Error> {
+pub fn encoding_utf8(_: &Request) -> Result<Response, Error> {
     return crate::assets::serve("utf8.txt", mime::TEXT_PLAIN);
 }

@@ -1,7 +1,5 @@
-use std::collections::HashMap;
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
-use serde_json::{json, to_string_pretty};
 use RESTReflect::{req_to_json, req_with_body_to_json};
 
 fn http_methods(req: &Request) -> Result<Response, Error> {

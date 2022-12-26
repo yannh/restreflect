@@ -1,10 +1,8 @@
 use std::path::Path;
-use fastly::http::{Method, StatusCode};
-use fastly::{Error, mime, Request, Response};
-use regex::{Regex};
+use fastly::http::StatusCode;
+use fastly::{Error, mime, Response};
 use rust_embed::RustEmbed;
 use std::ffi::OsStr;
-use utoipa::OpenApi;
 
 #[derive(RustEmbed)]
 #[folder = "assets/"]
@@ -38,20 +36,6 @@ pub fn file_mimetype(filename: &str, default: mime::Mime) -> mime::Mime {
 }
 
 pub fn serve(path: &str, mt: mime::Mime) -> Result<Response, Error> {
-    //let path = match req.get_path() {
-    //    "/deny" => "robots.txt",
-    //    "/json" => "json.json",
-    //    "/html" => "html.html",
-    //    "/robots.txt" => "robots.txt",
-    //    "/encoding/utf8" => "utf8.txt",
-    //    "/xml" => "xml.xml",
-    //    "/image/jpeg" => "jpeg.jpeg",
-    //    "/image/png" => "png.png",
-    //    "/image/svg" => "svg.svg",
-    //    "/image/webp" => "webp.webp",
-    //    _ => ""
-    //};
-
     let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body("E_NOTFOUND"));
@@ -59,7 +43,7 @@ pub fn serve(path: &str, mt: mime::Mime) -> Result<Response, Error> {
     return match Asset::get(path) {
         Some(asset) => Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.data.as_ref())
-            .with_content_type(file_mimetype(path, mime::APPLICATION_OCTET_STREAM))),
+            .with_content_type(file_mimetype(path, mt))),
 
         None => not_found,
     }
