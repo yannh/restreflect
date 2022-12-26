@@ -10,6 +10,7 @@ dependencies = [
  "brotli",
  "deflate",
  "fastly",
+ "getrandom",
  "regex",
  "rust-embed",
  "serde",
