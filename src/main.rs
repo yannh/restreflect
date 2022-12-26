@@ -21,7 +21,7 @@ use utoipa::OpenApi;
 #[derive(OpenApi)]
 #[openapi(
   paths(
-    auth::bearer,
+    auth::bearer, auth::basic_auth,
     dynamic_data::uuid, dynamic_data::delay_get, dynamic_data::delay_post, dynamic_data::base64,
     dynamic_data::bytes,
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
@@ -133,6 +133,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/utf8$").unwrap(), Handler(response_formats::encoding_utf8)),
         (Method::GET, Regex::new(r"/user-agent$").unwrap(), Handler(request_inspection::user_agent)),
         (Method::GET, Regex::new(r"/ip$").unwrap(), Handler(request_inspection::ip)),
+        (Method::GET, Regex::new(r"/basic-auth/(\w+)/(\w+)$").unwrap(), Handler(auth::basic_auth)),
         (Method::GET, Regex::new(r"/bearer$").unwrap(), Handler(auth::bearer)),
         (Method::GET, Regex::new(r"/base64/([A-Za-z0-9+/=]{1,4096})$").unwrap(), Handler(dynamic_data::base64)),
         (Method::GET, Regex::new(r"/bytes/(\d{1,5})$").unwrap(), Handler(dynamic_data::bytes)),
