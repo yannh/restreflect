@@ -3,6 +3,7 @@ use fastly::{Error, mime, Request, Response};
 use std::ffi::OsStr;
 use std::fmt::Write;
 use RESTReflect::{req_to_json, req_with_body_to_json};
+use deflate::deflate_bytes;
 
 #[utoipa::path(
     get,
@@ -23,6 +24,25 @@ pub fn brotli(req: &Request) -> Result<Response, Error> {
     }
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
+        .with_header("content-encoding", "br")
+        .with_body(enc))
+}
+
+#[utoipa::path(
+    get,
+    path = "/deflate",
+    tag = "Response formats",
+    responses(
+        (status = 200, description = "Deflate-encoded data.", content_type = "application/json")
+    )
+)]
+/// Returns Deflate-encoded data.
+pub fn deflate(req: &Request) -> Result<Response, Error> {
+    let res = req_to_json(req);
+    let enc = deflate_bytes(res.as_bytes());
+    return Ok(Response::from_status(StatusCode::OK)
+        .with_content_type(mime::APPLICATION_JSON)
+        .with_header("content-encoding", "deflate")
         .with_body(enc))
 }
 
