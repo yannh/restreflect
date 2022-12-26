@@ -25,7 +25,7 @@ use utoipa::OpenApi;
     images::jpeg, images::png, images::svg, images::webp,
     request_inspection::user_agent, request_inspection::ip, request_inspection::headers,
     response_formats::html, response_formats::json, response_formats::xml, response_formats::encoding_utf8,
-    response_formats::deny, response_formats::robots_txt,
+    response_formats::deny, response_formats::robots_txt, response_formats::brotli,
     status_codes::get, status_codes::post, status_codes::put, status_codes::patch, status_codes::delete,
   ),
   tags(
@@ -114,6 +114,8 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"^/image/png$").unwrap(), Handler(images::png)),
         (Method::GET, Regex::new(r"^/image/svg$").unwrap(), Handler(images::png)),
         (Method::GET, Regex::new(r"^/image/webp$").unwrap(), Handler(images::webp)),
+        (Method::GET, Regex::new(r"/brotli$").unwrap(), Handler(response_formats::brotli)),
+        (Method::GET, Regex::new(r"/deflate$").unwrap(), Handler(response_formats::deflate)),
         (Method::GET, Regex::new(r"/html$").unwrap(), Handler(response_formats::html)),
         (Method::GET, Regex::new(r"/json$").unwrap(), Handler(response_formats::json)),
         (Method::GET, Regex::new(r"/robots\.txt$").unwrap(), Handler(response_formats::robots_txt)),

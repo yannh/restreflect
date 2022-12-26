@@ -1,10 +1,31 @@
-use std::path::Path;
 use fastly::http::{Method, StatusCode};
 use fastly::{Error, mime, Request, Response};
-use regex::{Regex};
-use rust_embed::RustEmbed;
 use std::ffi::OsStr;
-use utoipa::OpenApi;
+use std::fmt::Write;
+use RESTReflect::{req_to_json, req_with_body_to_json};
+
+#[utoipa::path(
+    get,
+    path = "/brotli",
+    tag = "Response formats",
+    responses(
+    (status = 200, description = "Brotli-encoded data.", content_type = "application/json")
+    )
+)]
+/// Returns Brotli-encoded data.
+pub fn brotli(req: &Request) -> Result<Response, Error> {
+    let res = req_to_json(req);
+    let mut enc: Vec<u8> = vec!();
+    let params = brotli::enc::BrotliEncoderParams::default();
+    match brotli::BrotliCompress(&mut res.as_bytes(), &mut enc, &params) {
+        Ok(_) => {},
+        Err(e) => panic!("Error {:?}", e),
+    }
+    return Ok(Response::from_status(StatusCode::OK)
+        .with_content_type(mime::APPLICATION_JSON)
+        .with_body(enc))
+}
+
 #[utoipa::path(
     get,
     path = "/html",
