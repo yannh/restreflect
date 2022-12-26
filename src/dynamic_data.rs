@@ -59,7 +59,7 @@ pub fn base64(req: &Request) -> Result<Response, Error> {
         .with_body("Could not extract base64 data"));
 }
 
-pub fn delay(req: &Request) -> Result<Response, Error> {
+pub fn delay(req: &Request, body: String) -> Result<Response, Error> {
     let caps = Regex::new(r"/delay/(\d{1,2})$").unwrap()
         .captures(req.get_path());
     if caps.is_some() {
@@ -71,32 +71,12 @@ pub fn delay(req: &Request) -> Result<Response, Error> {
         thread::sleep(d);
         return Ok(Response::from_status(StatusCode::OK)
             .with_content_type(mime::APPLICATION_JSON)
-            .with_body(req_to_json(req)));
+            .with_body(body));
     }
 
     return Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML))
 }
-
-pub fn delay_with_body(req: &mut Request) -> Result<Response, Error> {
-    let caps = Regex::new(r"/delay/(\d{1,2})$").unwrap()
-        .captures(req.get_path());
-    if caps.is_some() {
-        let mut n = caps.unwrap().get(1).map_or(404, |m| m.as_str().parse::<u64>().unwrap_or(404));
-        if n > 10 {
-            n = 10;
-        }
-        let d = time::Duration::from_secs(n);
-        thread::sleep(d);
-        return Ok(Response::from_status(StatusCode::OK)
-            .with_content_type(mime::APPLICATION_JSON)
-            .with_body(req_with_body_to_json(req)));
-    }
-
-    return Ok(Response::from_status(StatusCode::NOT_FOUND)
-        .with_content_type(mime::TEXT_HTML))
-}
-
 
 #[utoipa::path(
     get,
@@ -108,7 +88,7 @@ pub fn delay_with_body(req: &mut Request) -> Result<Response, Error> {
 )]
 /// Returns a delayed response (max 10s)
 pub fn delay_get(req: &Request) -> Result<Response, Error> {
-    return delay(req);
+    return delay(req, req_to_json(req));
 }
 
 #[utoipa::path(
@@ -121,7 +101,8 @@ pub fn delay_get(req: &Request) -> Result<Response, Error> {
 )]
 /// Returns a delayed response (max 10s)
 pub fn delay_post(req: &mut Request) -> Result<Response, Error> {
-    return delay_with_body(req);
+    let body = req_with_body_to_json(req);
+    return delay(req, body);
 }
 
 //#[utoipa::path(
