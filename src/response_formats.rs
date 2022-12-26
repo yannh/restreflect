@@ -3,7 +3,7 @@ use fastly::{Error, mime, Request, Response};
 use std::ffi::OsStr;
 use std::fmt::Write;
 use RESTReflect::{req_to_json, req_with_body_to_json};
-use deflate::deflate_bytes;
+use deflate::{deflate_bytes, deflate_bytes_gzip};
 
 #[utoipa::path(
     get,
@@ -43,6 +43,24 @@ pub fn deflate(req: &Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_header("content-encoding", "deflate")
+        .with_body(enc))
+}
+
+#[utoipa::path(
+    get,
+    path = "/gzip",
+    tag = "Response formats",
+    responses(
+        (status = 200, description = "GZip-encoded data.", content_type = "application/json")
+    )
+)]
+/// Returns GZip-encoded data.
+pub fn gzip(req: &Request) -> Result<Response, Error> {
+    let res = req_to_json(req);
+    let enc = deflate_bytes_gzip(res.as_bytes());
+    return Ok(Response::from_status(StatusCode::OK)
+        .with_content_type(mime::APPLICATION_JSON)
+        .with_header("content-encoding", "gzip")
         .with_body(enc))
 }
 
