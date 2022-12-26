@@ -3,6 +3,7 @@ mod auth;
 mod dynamic_data;
 mod http_methods;
 mod images;
+mod redirects;
 mod request_inspection;
 mod response_formats;
 mod status_codes;
@@ -23,6 +24,7 @@ use utoipa::OpenApi;
     dynamic_data::uuid,
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
     images::jpeg, images::png, images::svg, images::webp,
+    redirects::relative_redirect,
     request_inspection::user_agent, request_inspection::ip, request_inspection::headers,
     response_formats::html, response_formats::json, response_formats::xml, response_formats::encoding_utf8,
     response_formats::deny, response_formats::robots_txt, response_formats::brotli,
@@ -33,6 +35,7 @@ use utoipa::OpenApi;
     (name = "Auth", description = "Auth methods"),
     (name = "Dynamic data", description = "Generates random and dynamic data"),
     (name = "HTTP Methods", description = "Testing different HTTP verbs"),
+    (name = "Redirects", description = "Returns different redirect responses"),
     (name = "Request inspection", description = "Inspect the request data"),
     (name = "Response formats", description = "Returns responses in different data formats"),
     (name = "Status codes", description = "Generates responses with given status code"),
@@ -129,6 +132,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/bearer$").unwrap(), Handler(auth::bearer)),
         (Method::GET, Regex::new(r"/uuid$").unwrap(), Handler(dynamic_data::uuid)),
         (Method::GET, Regex::new(r"/headers$").unwrap(), Handler(request_inspection::headers)),
+        (Method::GET, Regex::new(r"/relative-redirect/(\d{1})$").unwrap(), Handler(redirects::relative_redirect)),
     ];
 
     return route(routes, &mut req).map (|resp|
