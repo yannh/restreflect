@@ -87,3 +87,31 @@ pub fn delay(req: &Request) -> Result<Response, Error> {
     return Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML))
 }
+
+//#[utoipa::path(
+//    get,
+//    path = "/bytes/{n}",
+//    tag = "Dynamic data",
+//    params(
+//        ("n" = u32, Path, description = "Number of bytes to return. Max: 99999"),
+//    ),
+//    responses(
+//        (status = 200, description = "Bytes.", content_type = "application/octet-stream"),
+//    )
+//)]
+///// Returns n random bytes
+//pub fn bytes(req: &Request) -> Result<Response, Error> {
+//    let caps = Regex::new(r"/bytes/(\d{0,5})$").unwrap()
+//        .captures(req.get_path());
+//    if caps.is_some() {
+//        let n = caps.unwrap().get(1).map_or(100, |m| m.as_str().parse::<u32>().unwrap_or(100));
+//        let mut rng = rand::thread_rng();
+//        let resp: Vec<u8>= (0..n).map(|i| rng.gen_range(0,255)).collect();
+//        return Ok(Response::from_status(StatusCode::OK)
+//            .with_content_type(mime::APPLICATION_OCTET_STREAM)
+//            .with_body_bytes(&resp));
+//    }
+//
+//    return Ok(Response::from_status(StatusCode::NOT_FOUND)
+//        .with_content_type(mime::APPLICATION_OCTET_STREAM))
+//}

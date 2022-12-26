@@ -22,6 +22,7 @@ rust-embed="6.3.0"
 utoipa = "2"
 brotli = "3"
 base64 = "0.20"
+#rand = { version = "0.8.5", features = ["wasm-bindgen"]}
 
 [dependencies.deflate]
 version = "1.0.0"
