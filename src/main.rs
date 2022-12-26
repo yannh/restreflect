@@ -10,12 +10,9 @@ mod response_formats;
 mod status_codes;
 mod lib;
 
-use std::path::Path;
 use fastly::http::{Method, StatusCode};
-use fastly::{Error, http, mime, Request, Response};
+use fastly::{Error, mime, Request, Response};
 use regex::{Regex};
-use rust_embed::RustEmbed;
-use std::ffi::OsStr;
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]

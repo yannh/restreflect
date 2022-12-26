@@ -32,7 +32,7 @@ pub fn req_with_body_to_json(req: &mut Request) -> String {
 
     let resp = match *req.get_method() {
         Method::POST => {
-            let mut f: Vec<(String, String)>;
+            let f: Vec<(String, String)>;
             let mut fo: HashMap<&str, &str> = HashMap::new();
 
             if req.get_header("content-type").unwrap() == "application/x-www-form-urlencoded" {
