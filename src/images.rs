@@ -1,4 +1,6 @@
 use fastly::{Error, mime, Request, Response};
+use fastly::http::HeaderValue;
+use crate::StatusCode;
 
 #[utoipa::path(
     get,
@@ -51,4 +53,37 @@ pub fn svg(_: &Request) -> Result<Response, Error> {
 pub fn webp(_: &Request) -> Result<Response, Error> {
     let mime_webp: mime::Mime = "image/webp".parse().unwrap_or(mime::APPLICATION_OCTET_STREAM);
     return crate::assets::serve("webp.webp", mime_webp);
+}
+
+#[utoipa::path(
+    get,
+    path = "/image",
+    tag = "Images",
+    responses(
+        (status = 200, description = "An image.", content_type = "image/webp")
+    )
+)]
+/// Returns a simple image of the type suggest by the Accept header.
+pub fn image(req: &Request) -> Result<Response, Error> {
+    // reproduced logic from https://github.com/postmanlabs/httpbin/blob/f8ec666b4d1b654e4ff6aedd356f510dcac09f83/httpbin/core.py#L1645
+    let default = &HeaderValue::from_static("image/png");
+    let accept = req
+        .get_header("accept")
+        .unwrap_or(default)
+        .to_str()
+        .unwrap_or("");
+    if accept.contains("image/webp") {
+        return webp(req)
+    }
+    if accept.contains("image/svg+xml") {
+        return svg(req)
+    }
+    if accept.contains("image/jpeg") {
+        return jpeg(req)
+    }
+    if accept.contains("image/png") || accept.contains("image/*") {
+        return png(req)
+    }
+    return Ok(Response::from_status(StatusCode::NOT_ACCEPTABLE)
+        .with_content_type(mime::APPLICATION_JSON));
 }
