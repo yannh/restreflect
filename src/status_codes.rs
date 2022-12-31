@@ -1,14 +1,16 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
 use regex::Regex;
+use rand::seq::SliceRandom;
 
 fn rr_http_statuses(req: &Request) -> Result<Response, Error> {
-    let caps = Regex::new(r"/status/(\d{3})$").unwrap()
+    let caps = Regex::new(r"/status/((\d{3},?)+)$").unwrap()
         .captures(req.get_path());
     if caps.is_some() {
-        let status = caps.unwrap().get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
+        let statuses:Vec<&str> = caps.unwrap().get(1).map_or("404", |m| m.as_str()).split(",").collect();
+        let status = statuses.choose(&mut rand::thread_rng()).unwrap().parse::<u16>().unwrap_or(404);
         return Ok(Response::from_status(StatusCode::from_u16(status).unwrap_or(StatusCode::NOT_FOUND))
-            .with_content_type(mime::TEXT_HTML_UTF_8))
+            .with_content_type(mime::TEXT_HTML_UTF_8));
     }
 
     return Ok(Response::from_status(StatusCode::NOT_FOUND)

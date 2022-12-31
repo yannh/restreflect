@@ -105,7 +105,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
     let routes: Vec<(Method, Regex, ReqHandler)> = vec![
         (Method::GET, Regex::new(r"/(index.html)?$").unwrap(), Handler(rr_index)),
         (Method::GET, Regex::new(r"/swagger\.json$").unwrap(), Handler(rr_swagger)),
-        (Method::GET, Regex::new(r"^/status/(\d{3})$").unwrap(), Handler(status_codes::get)),
+        (Method::GET, Regex::new(r"^/status/((\d{3},?)+)$").unwrap(), Handler(status_codes::get)),
         (Method::POST, Regex::new(r"^/status/(\d{3})$").unwrap(), MutHandler(status_codes::post)),
         (Method::PUT, Regex::new(r"^/status/(\d{3})$").unwrap(), MutHandler(status_codes::put)),
         (Method::PATCH, Regex::new(r"^/status/(\d{3})$").unwrap(), MutHandler(status_codes::patch)),

@@ -23,6 +23,7 @@ utoipa = "2"
 brotli = "3"
 base64 = "0.20"
 getrandom = "0.2"
+rand = "0.8.5"
 
 [dependencies.deflate]
 version = "1.0.0"
