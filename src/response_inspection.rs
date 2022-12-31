@@ -14,7 +14,7 @@ use std::collections::HashMap;
     )
 )]
 /// Returns a set of response headers from the query string
-pub fn response_headers(req: &Request) -> Result<Response, Error> {
+pub fn response_headers_get(req: &Request) -> Result<Response, Error> {
     let arg_pairs: Vec<(String, String)> = req.get_query().unwrap();
     let args: HashMap<&str, &str> = arg_pairs.iter().map(|m| (m.0.as_str(), m.1.as_str()))
         .collect();
@@ -27,4 +27,21 @@ pub fn response_headers(req: &Request) -> Result<Response, Error> {
     }
 
     return Ok(resp)
+}
+
+
+#[utoipa::path(
+    post,
+    path = "/response-headers",
+    tag = "Response inspection",
+    params(
+        ("freeform" = String, Query, description = "Query string with parameters to return as headers."),
+    ),
+    responses(
+        (status = 200, description = "Response headers", content_type = "application/json")
+    )
+)]
+/// Returns a set of response headers from the query string
+pub fn response_headers_post(req: &Request) -> Result<Response, Error> {
+    return response_headers_get(req)
 }
