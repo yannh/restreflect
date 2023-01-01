@@ -8,7 +8,7 @@ mod request_inspection;
 mod response_inspection;
 mod response_formats;
 mod status_codes;
-mod lib;
+mod utils;
 
 use fastly::http::{Method, StatusCode};
 use fastly::{Error, mime, Request, Response};

@@ -1,6 +1,7 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
+use crate::utils::req_headers;
 
 #[utoipa::path(
     get,
@@ -52,7 +53,7 @@ pub fn ip(req: &Request) -> Result<Response, Error> {
 /// Return the incoming request's HTTP headers
 pub fn headers(req: &Request) -> Result<Response, Error> {
     let resp = json!({
-            "headers": crate::lib::req_headers(req),
+            "headers": req_headers(req),
         });
 
     Ok(Response::from_status(StatusCode::OK)

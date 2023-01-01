@@ -1,6 +1,6 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
-use RESTReflect::req_to_json;
+use crate::utils::req_to_json;
 use deflate::{deflate_bytes, deflate_bytes_gzip};
 
 #[utoipa::path(

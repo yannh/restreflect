@@ -1,6 +1,6 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
-use RESTReflect::{req_to_json, req_with_body_to_json};
+use crate::utils::{req_to_json, req_with_body_to_json};
 
 fn http_methods(req: &Request) -> Result<Response, Error> {
     Ok(Response::from_status(StatusCode::OK)
