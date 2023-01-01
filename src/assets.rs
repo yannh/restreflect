@@ -40,7 +40,7 @@ pub fn serve(path: &str, mt: mime::Mime) -> Result<Response, Error> {
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body("E_NOTFOUND"));
 
-    return match Asset::get(path) {
+    match Asset::get(path) {
         Some(asset) => Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.data.as_ref())
             .with_content_type(file_mimetype(path, mt))),

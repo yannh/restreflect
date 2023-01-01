@@ -52,7 +52,7 @@ pub fn svg(_: &Request) -> Result<Response, Error> {
 /// Returns a simple WEBP image.
 pub fn webp(_: &Request) -> Result<Response, Error> {
     let mime_webp: mime::Mime = "image/webp".parse().unwrap_or(mime::APPLICATION_OCTET_STREAM);
-    return crate::assets::serve("webp.webp", mime_webp);
+    crate::assets::serve("webp.webp", mime_webp)
 }
 
 #[utoipa::path(
@@ -84,6 +84,6 @@ pub fn image(req: &Request) -> Result<Response, Error> {
     if accept.contains("image/png") || accept.contains("image/*") {
         return png(req)
     }
-    return Ok(Response::from_status(StatusCode::NOT_ACCEPTABLE)
-        .with_content_type(mime::APPLICATION_JSON));
+    Ok(Response::from_status(StatusCode::NOT_ACCEPTABLE)
+        .with_content_type(mime::APPLICATION_JSON))
 }

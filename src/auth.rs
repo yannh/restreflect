@@ -38,7 +38,7 @@ pub fn basic_auth(req: &Request) -> Result<Response, Error> {
 
     let caps = Regex::new(r"/basic-auth/(\w+)/(\w+)$")?
         .captures(req.get_path());
-    if !caps.is_some() {
+    if caps.is_none() {
         return unauthorized;
     }
 

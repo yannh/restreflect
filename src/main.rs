@@ -147,9 +147,9 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::GET, Regex::new(r"/redirect/(\d{1})$")?, Handler(redirects::redirect)),
     ];
 
-    return route(routes, &mut req).map (|resp|
+    route(routes, &mut req).map (|resp|
         resp
             .with_header("access-control-allow-origin", "*")
             .with_header("access-control-allow-credentials", "true")
-    );
+    )
 }

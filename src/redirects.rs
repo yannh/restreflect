@@ -29,7 +29,7 @@ pub fn relative_redirect(req: &Request) -> Result<Response, Error> {
             .with_header("location", redirect_to)
             .with_content_type(mime::TEXT_HTML_UTF_8));
     }
-    return Ok(Response::from_status(StatusCode::NOT_FOUND)
+    Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML))
 }
 
@@ -46,5 +46,5 @@ pub fn relative_redirect(req: &Request) -> Result<Response, Error> {
 )]
 /// 302 redirects n times.
 pub fn redirect(req: &Request) -> Result<Response, Error> {
-    return relative_redirect(req)
+    relative_redirect(req)
 }

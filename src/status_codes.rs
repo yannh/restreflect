@@ -13,8 +13,8 @@ fn rr_http_statuses(req: &Request) -> Result<Response, Error> {
             .with_content_type(mime::TEXT_HTML_UTF_8));
     }
 
-    return Ok(Response::from_status(StatusCode::NOT_FOUND)
-        .with_content_type(mime::TEXT_HTML_UTF_8));
+    Ok(Response::from_status(StatusCode::NOT_FOUND)
+        .with_content_type(mime::TEXT_HTML_UTF_8))
 }
 
 #[utoipa::path(
@@ -35,7 +35,7 @@ fn rr_http_statuses(req: &Request) -> Result<Response, Error> {
 )]
 /// Return status code or random status code if more than one is given
 pub fn get(req: &Request) -> Result<Response, Error> {
-    return rr_http_statuses(req)
+    rr_http_statuses(req)
 }
 
 #[utoipa::path(
@@ -56,7 +56,7 @@ pub fn get(req: &Request) -> Result<Response, Error> {
 )]
 /// Return status code or random status code if more than one is given
 pub fn post(req: &mut Request) -> Result<Response, Error> {
-    return rr_http_statuses(req)
+    rr_http_statuses(req)
 }
 
 #[utoipa::path(
@@ -77,7 +77,7 @@ pub fn post(req: &mut Request) -> Result<Response, Error> {
 )]
 /// Return status code or random status code if more than one is given
 pub fn put(req: &mut Request) -> Result<Response, Error> {
-    return rr_http_statuses(req)
+    rr_http_statuses(req)
 }
 
 #[utoipa::path(
@@ -98,7 +98,7 @@ pub fn put(req: &mut Request) -> Result<Response, Error> {
 )]
 /// Return status code or random status code if more than one is given
 pub fn patch(req: &mut Request) -> Result<Response, Error> {
-    return rr_http_statuses(req)
+    rr_http_statuses(req)
 }
 
 #[utoipa::path(
@@ -119,5 +119,5 @@ pub fn patch(req: &mut Request) -> Result<Response, Error> {
 )]
 /// Return status code or random status code if more than one is given
 pub fn delete(req: &Request) -> Result<Response, Error> {
-    return rr_http_statuses(req)
+    rr_http_statuses(req)
 }

@@ -3,13 +3,13 @@ use fastly::{Error, mime, Request, Response};
 use RESTReflect::{req_to_json, req_with_body_to_json};
 
 fn http_methods(req: &Request) -> Result<Response, Error> {
-    return Ok(Response::from_status(StatusCode::OK)
+    Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(req_to_json(req)))
 }
 
 fn http_methods_mut(req: &mut Request) -> Result<Response, Error> {
-    return Ok(Response::from_status(StatusCode::OK)
+    Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(req_with_body_to_json(req)))
 }
@@ -24,7 +24,7 @@ fn http_methods_mut(req: &mut Request) -> Result<Response, Error> {
 )]
 /// The request's query parameter
 pub fn get(req: &Request) -> Result<Response, Error> {
-    return http_methods(req)
+    http_methods(req)
 }
 
 #[utoipa::path(
@@ -37,7 +37,7 @@ pub fn get(req: &Request) -> Result<Response, Error> {
 )]
 /// The request's POST parameter
 pub fn post(req: &mut Request) -> Result<Response, Error> {
-    return http_methods_mut(req)
+    http_methods_mut(req)
 }
 
 #[utoipa::path(
@@ -50,7 +50,7 @@ pub fn post(req: &mut Request) -> Result<Response, Error> {
 )]
 /// The request's PUT parameter
 pub fn put(req: &mut Request) -> Result<Response, Error> {
-    return http_methods(req)
+    http_methods(req)
 }
 
 #[utoipa::path(
@@ -63,7 +63,7 @@ pub fn put(req: &mut Request) -> Result<Response, Error> {
 )]
 /// The request's PATCH parameter
 pub fn patch(req: &mut Request) -> Result<Response, Error> {
-    return http_methods(req)
+    http_methods(req)
 }
 
 #[utoipa::path(
@@ -76,6 +76,6 @@ pub fn patch(req: &mut Request) -> Result<Response, Error> {
 )]
 /// The request's DELETE parameter
 pub fn delete(req: &Request) -> Result<Response, Error> {
-    return http_methods(req)
+    http_methods(req)
 }
 

@@ -27,7 +27,7 @@ pub fn response_headers_get(req: &Request) -> Result<Response, Error> {
         resp = resp.with_header(k, v);
     }
 
-    return Ok(resp)
+    Ok(resp)
 }
 
 
@@ -44,7 +44,7 @@ pub fn response_headers_get(req: &Request) -> Result<Response, Error> {
 )]
 /// Returns a set of response headers from the query string
 pub fn response_headers_post(req: &Request) -> Result<Response, Error> {
-    return response_headers_get(req)
+    response_headers_get(req)
 }
 
 #[utoipa::path(
@@ -96,6 +96,6 @@ pub fn etag(req: &Request) -> Result<Response, Error> {
             .with_content_type(mime::APPLICATION_JSON));
     }
 
-    return Ok(Response::from_status(StatusCode::NOT_FOUND)
-        .with_content_type(mime::APPLICATION_JSON));
+    Ok(Response::from_status(StatusCode::NOT_FOUND)
+        .with_content_type(mime::APPLICATION_JSON))
 }

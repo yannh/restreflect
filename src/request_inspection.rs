@@ -17,7 +17,7 @@ pub fn user_agent(req: &Request) -> Result<Response, Error> {
             "user-agent": ua
         });
 
-    return Ok(Response::from_status(StatusCode::OK)
+    Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap()))
 }
@@ -36,7 +36,7 @@ pub fn ip(req: &Request) -> Result<Response, Error> {
             "ip": req.get_client_ip_addr()
         });
 
-    return Ok(Response::from_status(StatusCode::OK)
+    Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap()))
 }
@@ -55,7 +55,7 @@ pub fn headers(req: &Request) -> Result<Response, Error> {
             "headers": crate::lib::req_headers(req),
         });
 
-    return Ok(Response::from_status(StatusCode::OK)
+    Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap_or_default()))
 }

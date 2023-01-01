@@ -112,7 +112,7 @@ pub fn robots_txt(_: &Request) -> Result<Response, Error> {
 /// Returns a simple XML document.
 pub fn xml(_: &Request) -> Result<Response, Error> {
     let mime_xml: mime::Mime = "application/xml".parse().unwrap_or(mime::APPLICATION_OCTET_STREAM);
-    return crate::assets::serve("robots.txt", mime_xml);
+    crate::assets::serve("robots.txt", mime_xml)
 }
 
 #[utoipa::path(
@@ -125,7 +125,7 @@ pub fn xml(_: &Request) -> Result<Response, Error> {
 )]
 /// Returns page denied by robots.txt rules.
 pub fn deny(_: &Request) -> Result<Response, Error> {
-    return crate::assets::serve("deny.txt", mime::TEXT_PLAIN);
+    crate::assets::serve("deny.txt", mime::TEXT_PLAIN)
 }
 
 #[utoipa::path(
@@ -138,5 +138,5 @@ pub fn deny(_: &Request) -> Result<Response, Error> {
 )]
 /// Returns a UTF-8 encoded body.
 pub fn encoding_utf8(_: &Request) -> Result<Response, Error> {
-    return crate::assets::serve("utf8.txt", mime::TEXT_PLAIN);
+    crate::assets::serve("utf8.txt", mime::TEXT_PLAIN)
 }
