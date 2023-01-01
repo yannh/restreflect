@@ -27,8 +27,8 @@ pub fn basic_auth(req: &Request) -> Result<Response, Error> {
             .with_header("www-authenticate", "Basic Realm=\"Fake Realm\""));
     }
 
-    let enc_basic_auth = authorization.unwrap().to_str().unwrap_or("").strip_prefix("Basic ").unwrap_or("");
-    let dec_basic_auth = String::from_utf8(base64::decode(enc_basic_auth).unwrap()).unwrap_or(String::from(""));
+    let enc_basic_auth = authorization.unwrap().to_str().unwrap_or_default().strip_prefix("Basic ").unwrap_or_default();
+    let dec_basic_auth = String::from_utf8(base64::decode(enc_basic_auth).unwrap()).unwrap_or_default();
     let credentials: Vec<&str> = dec_basic_auth.split(":").collect();
     if credentials.len() != 2 {
         return Ok(Response::from_status(StatusCode::UNAUTHORIZED)
@@ -36,7 +36,7 @@ pub fn basic_auth(req: &Request) -> Result<Response, Error> {
     }
     let (given_user, given_pwd) = (credentials[0], credentials[1]);
 
-    let caps = Regex::new(r"/basic-auth/(\w+)/(\w+)$").unwrap()
+    let caps = Regex::new(r"/basic-auth/(\w+)/(\w+)$")?
         .captures(req.get_path());
     if !caps.is_some() {
         return unauthorized;
@@ -70,7 +70,7 @@ pub fn bearer(req: &Request) -> Result<Response, Error> {
 
     match req.get_header("authorization") {
         Some(auth) => {
-            let token = auth.to_str().unwrap_or("").strip_prefix("Bearer ");
+            let token = auth.to_str().unwrap_or_default().strip_prefix("Bearer ");
             if token.is_none() {
                 return unauthorized;
             }
@@ -82,7 +82,7 @@ pub fn bearer(req: &Request) -> Result<Response, Error> {
 
             Ok(Response::from_status(StatusCode::OK)
                 .with_content_type(mime::APPLICATION_JSON)
-                .with_body(to_string_pretty(&resp).unwrap()))
+                .with_body(to_string_pretty(&resp).unwrap_or_default()))
         },
         None => unauthorized,
     }

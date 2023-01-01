@@ -16,7 +16,7 @@ use std::collections::HashMap;
 )]
 /// Returns a set of response headers from the query string
 pub fn response_headers_get(req: &Request) -> Result<Response, Error> {
-    let arg_pairs: Vec<(String, String)> = req.get_query().unwrap();
+    let arg_pairs: Vec<(String, String)> = req.get_query()?;
     let args: HashMap<&str, &str> = arg_pairs.iter().map(|m| (m.0.as_str(), m.1.as_str()))
         .collect();
 
@@ -62,7 +62,7 @@ pub fn response_headers_post(req: &Request) -> Result<Response, Error> {
 )]
 /// Assumes the resource has the given etag and responds to If-None-Match and If-Match headers appropriately.
 pub fn etag(req: &Request) -> Result<Response, Error> {
-    let caps = Regex::new(r"/etag/(\w+)$").unwrap()
+    let caps = Regex::new(r"/etag/(\w+)$")?
         .captures(req.get_path());
     if caps.is_some() {
         let etag = caps.unwrap().get(1).map_or("404", |m| m.as_str());
