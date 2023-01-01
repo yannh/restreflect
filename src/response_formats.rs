@@ -14,7 +14,7 @@ use deflate::{deflate_bytes, deflate_bytes_gzip};
 /// Returns Brotli-encoded data.
 pub fn brotli(req: &Request) -> Result<Response, Error> {
     let res = req_to_json(req);
-    let mut enc: Vec<u8> = vec!();
+    let mut enc = vec!();
     let params = brotli::enc::BrotliEncoderParams::default();
     match brotli::BrotliCompress(&mut res.as_bytes(), &mut enc, &params) {
         Ok(_) => {},
