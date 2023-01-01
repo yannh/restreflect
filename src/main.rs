@@ -96,9 +96,9 @@ fn main(mut req: Request) -> Result<Response, Error> {
     let mut p = path.to_owned();
     p.insert_str(0, "swagger-ui");
     let asset = assets::Asset::get(p.as_str());
-    if asset.is_some() {
+    if let Some(asset) = asset {
         return Ok(Response::from_status(StatusCode::OK)
-            .with_body_octet_stream(asset.unwrap().data.as_ref())
+            .with_body_octet_stream(asset.data.as_ref())
             .with_content_type(assets::file_mimetype(path, mime::APPLICATION_OCTET_STREAM)));
     }
 

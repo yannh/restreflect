@@ -26,7 +26,7 @@ pub fn req_to_json(req: &Request) -> String {
 }
 
 pub fn req_with_body_to_json(req: &mut Request) -> String {
-    let arg_pairs: Vec<(String, String)> = req.get_query().unwrap();
+    let arg_pairs: Vec<(String, String)> = req.get_query().unwrap_or_default();
     let args: HashMap<&str, &str> = arg_pairs.iter().map(|m| (m.0.as_str(), m.1.as_str()))
         .collect();
 
@@ -44,11 +44,11 @@ pub fn req_with_body_to_json(req: &mut Request) -> String {
             }
 
             json!({
-            "args": args,
-            "form": fo,
-            "headers": req_headers(req),
-            "origin": req.get_client_ip_addr(),
-            "url": req.get_url_str()
+                "args": args,
+                "form": fo,
+                "headers": req_headers(req),
+                "origin": req.get_client_ip_addr(),
+                "url": req.get_url_str()
             })
         },
         _ => json!({
@@ -59,5 +59,5 @@ pub fn req_with_body_to_json(req: &mut Request) -> String {
         }),
     };
 
-    return to_string_pretty(&resp).unwrap();
+    return to_string_pretty(&resp).unwrap_or_default();
 }
