@@ -64,8 +64,8 @@ pub fn response_headers_post(req: &Request) -> Result<Response, Error> {
 pub fn etag(req: &Request) -> Result<Response, Error> {
     let caps = Regex::new(r"/etag/(\w+)$")?
         .captures(req.get_path());
-    if caps.is_some() {
-        let etag = caps.unwrap().get(1).map_or("404", |m| m.as_str());
+    if let Some(caps) = caps {
+        let etag = caps.get(1).map_or("404", |m| m.as_str());
         let d = HeaderValue::from_static("");
         let if_none_match: Vec<&str> = req
             .get_header("if-none-match")

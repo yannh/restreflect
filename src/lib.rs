@@ -11,7 +11,7 @@ pub fn req_headers(req: &Request) -> HashMap<&str, &str> {
 }
 
 pub fn req_to_json(req: &Request) -> String {
-    let arg_pairs: Vec<(String, String)> = req.get_query().unwrap();
+    let arg_pairs: Vec<(String, String)> = req.get_query().unwrap_or_default();
     let args: HashMap<&str, &str> = arg_pairs.iter().map(|m| (m.0.as_str(), m.1.as_str()))
         .collect();
 

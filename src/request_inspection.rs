@@ -57,5 +57,5 @@ pub fn headers(req: &Request) -> Result<Response, Error> {
 
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
-        .with_body(to_string_pretty(&resp).unwrap()))
+        .with_body(to_string_pretty(&resp).unwrap_or_default()))
 }
