@@ -55,7 +55,7 @@ fn rr_index(_: &Request) -> Result<Response, Error> {
         .with_content_type(mime::TEXT_HTML_UTF_8)
         .with_body("E_NOTFOUND"));
 
-    return match crate::assets::Asset::get("index.html") {
+    match crate::assets::Asset::get("index.html") {
         Some(asset) => Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.data.as_ref())
             .with_content_type(mime::TEXT_HTML_UTF_8)),
@@ -65,9 +65,9 @@ fn rr_index(_: &Request) -> Result<Response, Error> {
 }
 
 fn rr_swagger(_: &Request) -> Result<Response, Error> {
-    return Ok(Response::from_status(StatusCode::OK)
+    Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
-        .with_body(ApiDoc::openapi().to_pretty_json().unwrap_or_default()));
+        .with_body(ApiDoc::openapi().to_pretty_json().unwrap_or_default()))
 }
 
 fn route(routes:Vec<(Method, Regex, ReqHandler)>, req: &mut Request) -> Result<Response, Error>{
@@ -80,8 +80,8 @@ fn route(routes:Vec<(Method, Regex, ReqHandler)>, req: &mut Request) -> Result<R
        }
    }
 
-   return Ok(Response::from_status(StatusCode::NOT_FOUND)
-     .with_content_type(mime::TEXT_HTML_UTF_8));
+   Ok(Response::from_status(StatusCode::NOT_FOUND)
+     .with_content_type(mime::TEXT_HTML_UTF_8))
 }
 
 #[fastly::main]
