@@ -71,7 +71,7 @@ pub fn etag(req: &Request) -> Result<Response, Error> {
             .get_header("if-none-match")
             .unwrap_or(&d)
             .to_str()
-            .unwrap_or("")
+            .unwrap_or_default()
             .split(",")
             .collect();
         if if_none_match.contains(&etag) || if_none_match.contains(&"*"){
@@ -83,7 +83,7 @@ pub fn etag(req: &Request) -> Result<Response, Error> {
             .get_header("if-none-match")
             .unwrap_or(&d)
             .to_str()
-            .unwrap_or("")
+            .unwrap_or_default()
             .split(",")
             .collect();
         if !if_match.contains(&etag) && !if_match.contains(&"*"){

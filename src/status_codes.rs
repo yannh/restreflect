@@ -4,7 +4,7 @@ use regex::Regex;
 use rand::seq::SliceRandom;
 
 fn rr_http_statuses(req: &Request) -> Result<Response, Error> {
-    let caps = Regex::new(r"/status/((\d{3},?)+)$").unwrap()
+    let caps = Regex::new(r"/status/((\d{3},?)+)$")?
         .captures(req.get_path());
     if caps.is_some() {
         let statuses:Vec<&str> = caps.unwrap().get(1).map_or("404", |m| m.as_str()).split(",").collect();
