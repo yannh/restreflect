@@ -19,18 +19,19 @@ pub fn relative_redirect(req: &Request) -> Result<Response, Error> {
         .captures(req.get_path());
     if let Some(caps) = caps {
         let n = caps.get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
-        let redirect_to ;
-        if n > 1 {
-            redirect_to = format!("/relative-redirect/{}", n-1)
-        } else {
-            redirect_to = String::from("/get")
-        }
+        let redirect_to = {
+            if n > 1 {
+                format!("/relative-redirect/{}", n-1)
+            } else {
+                String::from("/get")
+            }
+        };
         return Ok(Response::from_status(StatusCode::FOUND)
             .with_header("location", redirect_to)
             .with_content_type(mime::TEXT_HTML_UTF_8));
     }
     Ok(Response::from_status(StatusCode::NOT_FOUND)
-        .with_content_type(mime::TEXT_HTML))
+        .with_content_type(mime::TEXT_HTML_UTF_8))
 }
 
 #[utoipa::path(
