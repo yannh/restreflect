@@ -87,16 +87,11 @@ fn route(routes:Vec<(Method, Regex, ReqHandler)>, req: &mut Request) -> Result<R
 #[fastly::main]
 fn main(mut req: Request) -> Result<Response, Error> {
     let path = match req.get_path() {
-        "/" => "/index.html",
-        "/index" => "/index.html",
-        "/index.html" => "/index.html",
+        "/" | "/index" | "/index.html" => "/index.html",
         _ => req.get_path(),
     };
 
-    let mut p = path.to_owned();
-    p.insert_str(0, "swagger-ui");
-    let asset = assets::Asset::get(p.as_str());
-    if let Some(asset) = asset {
+    if let Some(asset) = assets::Asset::get(format!("swagger-ui{path}").as_str()) {
         return Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.data.as_ref())
             .with_content_type(assets::file_mimetype(path, mime::APPLICATION_OCTET_STREAM)));
