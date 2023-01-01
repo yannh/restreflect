@@ -17,8 +17,8 @@ use regex::Regex;
 pub fn relative_redirect(req: &Request) -> Result<Response, Error> {
     let caps = Regex::new(r"/relative-redirect/(\d{1})$")?
         .captures(req.get_path());
-    if caps.is_some() {
-        let n = caps.unwrap().get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
+    if let Some(caps) = caps {
+        let n = caps.get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
         let redirect_to ;
         if n > 1 {
             redirect_to = format!("/relative-redirect/{}", n-1)

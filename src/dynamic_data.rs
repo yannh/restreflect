@@ -42,8 +42,8 @@ pub fn uuid(_: &Request) -> Result<Response, Error> {
 pub fn base64(req: &Request) -> Result<Response, Error> {
     let caps = Regex::new(r"/base64/([A-Za-z0-9+/=]{1,4096})$")?
         .captures(req.get_path());
-    if caps.is_some() {
-        let b64 = caps.unwrap().get(1).map(|m| m.as_str().as_bytes()).unwrap();
+    if let Some(caps) = caps {
+        let b64 = caps.get(1).map(|m| m.as_str().as_bytes()).unwrap();
         return match decode(&b64) {
             Ok(decoded) => Ok(Response::from_status(StatusCode::OK)
                 .with_content_type(mime::APPLICATION_JSON)
@@ -62,8 +62,8 @@ pub fn base64(req: &Request) -> Result<Response, Error> {
 pub fn delay(req: &Request, body: String) -> Result<Response, Error> {
     let caps = Regex::new(r"/delay/(\d{1,2})$").unwrap()
         .captures(req.get_path());
-    if caps.is_some() {
-        let mut n = caps.unwrap().get(1).map_or(404, |m| m.as_str().parse::<u64>().unwrap_or(404));
+    if let Some(caps) = caps {
+        let mut n = caps.get(1).map_or(404, |m| m.as_str().parse::<u64>().unwrap_or(404));
         if n > 10 {
             n = 10;
         }
@@ -120,8 +120,8 @@ pub fn delay_post(req: &mut Request) -> Result<Response, Error> {
 pub fn bytes(req: &Request) -> Result<Response, Error> {
     let caps = Regex::new(r"/bytes/(\d{1,5})$").unwrap()
         .captures(req.get_path());
-    if caps.is_some() {
-        let n = caps.unwrap().get(1).map_or(100, |m| m.as_str().parse::<usize>().unwrap_or(100));
+    if let Some(caps) = caps {
+        let n = caps.get(1).map_or(100, |m| m.as_str().parse::<usize>().unwrap_or(100));
         let mut resp:Vec<u8> = vec![0u8; n];
         getrandom::getrandom(&mut resp)?;
         return Ok(Response::from_status(StatusCode::OK)
