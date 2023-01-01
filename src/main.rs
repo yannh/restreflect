@@ -96,7 +96,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
         (Method::PATCH, Regex::new(r"^/patch$")?, MutHandler(http_methods::patch)),
         (Method::POST, Regex::new(r"^/post$")?, MutHandler(http_methods::post)),
         (Method::PUT, Regex::new(r"^/put$")?, MutHandler(http_methods::put)),
-        (Method::GET, Regex::new(r"^/delete$")?, Handler(http_methods::delete)),
+        (Method::DELETE, Regex::new(r"^/delete$")?, Handler(http_methods::delete)),
         (Method::GET, Regex::new(r"^/get$")?, Handler(http_methods::get)),
         (Method::GET, Regex::new(r"^/image$")?, Handler(images::image)),
         (Method::GET, Regex::new(r"^/image/jpeg$")?, Handler(images::jpeg)),
