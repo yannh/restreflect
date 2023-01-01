@@ -50,20 +50,6 @@ enum ReqHandler {
     Handler(fn(&Request) -> Result<Response, Error>),
 }
 
-fn rr_index(_: &Request) -> Result<Response, Error> {
-    let not_found = Ok(Response::from_status(StatusCode::NOT_FOUND)
-        .with_content_type(mime::TEXT_HTML_UTF_8)
-        .with_body("E_NOTFOUND"));
-
-    match crate::assets::Asset::get("index.html") {
-        Some(asset) => Ok(Response::from_status(StatusCode::OK)
-            .with_body_octet_stream(asset.data.as_ref())
-            .with_content_type(mime::TEXT_HTML_UTF_8)),
-
-        None => not_found,
-    }
-}
-
 fn rr_swagger(_: &Request) -> Result<Response, Error> {
     Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
@@ -86,11 +72,13 @@ fn route(routes:Vec<(Method, Regex, ReqHandler)>, req: &mut Request) -> Result<R
 
 #[fastly::main]
 fn main(mut req: Request) -> Result<Response, Error> {
+    // Aliases to index.html
     let path = match req.get_path() {
         "/" | "/index" | "/index.html" => "/index.html",
         _ => req.get_path(),
     };
 
+    // The URL matches a file from the swagger-ui folder - we return it
     if let Some(asset) = assets::Asset::get(format!("swagger-ui{path}").as_str()) {
         return Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.data.as_ref())
@@ -99,7 +87,6 @@ fn main(mut req: Request) -> Result<Response, Error> {
 
     use ReqHandler::*;
     let routes: Vec<(Method, Regex, ReqHandler)> = vec![
-        (Method::GET, Regex::new(r"/(index.html)?$")?, Handler(rr_index)),
         (Method::GET, Regex::new(r"/swagger\.json$")?, Handler(rr_swagger)),
         (Method::GET, Regex::new(r"^/status/((\d{3},?)+)$")?, Handler(status_codes::get)),
         (Method::POST, Regex::new(r"^/status/(\d{3})$")?, MutHandler(status_codes::post)),
