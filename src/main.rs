@@ -86,7 +86,7 @@ fn main(mut req: Request) -> Result<Response, Error> {
     }
 
     use ReqHandler::*;
-    let routes: Vec<(Method, Regex, ReqHandler)> = vec![
+    let routes = vec![
         (Method::GET, Regex::new(r"/swagger\.json$")?, Handler(rr_swagger)),
         (Method::GET, Regex::new(r"^/status/((\d{3},?)+)$")?, Handler(status_codes::get)),
         (Method::POST, Regex::new(r"^/status/(\d{3})$")?, MutHandler(status_codes::post)),
