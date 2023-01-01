@@ -24,7 +24,7 @@ pub fn uuid(_: &Request) -> Result<Response, Error> {
     thread::sleep(ten_millis);
     return Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
-        .with_body(to_string_pretty(&resp).unwrap()));
+        .with_body(to_string_pretty(&resp).unwrap_or_default()));
 }
 
 #[utoipa::path(
@@ -40,7 +40,7 @@ pub fn uuid(_: &Request) -> Result<Response, Error> {
 )]
 /// Decodes base64-encoded string.
 pub fn base64(req: &Request) -> Result<Response, Error> {
-    let caps = Regex::new(r"/base64/([A-Za-z0-9+/=]{1,4096})$").unwrap()
+    let caps = Regex::new(r"/base64/([A-Za-z0-9+/=]{1,4096})$")?
         .captures(req.get_path());
     if caps.is_some() {
         let b64 = caps.unwrap().get(1).map(|m| m.as_str().as_bytes()).unwrap();

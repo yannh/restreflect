@@ -71,7 +71,7 @@ pub fn image(req: &Request) -> Result<Response, Error> {
         .get_header("accept")
         .unwrap_or(default)
         .to_str()
-        .unwrap_or("");
+        .unwrap_or_default();
     if accept.contains("image/webp") {
         return webp(req)
     }
