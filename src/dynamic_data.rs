@@ -22,9 +22,9 @@ pub fn uuid(_: &Request) -> Result<Response, Error> {
     });
     let ten_millis = time::Duration::from_millis(10);
     thread::sleep(ten_millis);
-    return Ok(Response::from_status(StatusCode::OK)
+    Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
-        .with_body(to_string_pretty(&resp).unwrap_or_default()));
+        .with_body(to_string_pretty(&resp).unwrap_or_default()))
 }
 
 #[utoipa::path(
@@ -54,9 +54,9 @@ pub fn base64(req: &Request) -> Result<Response, Error> {
         }
     }
 
-    return Ok(Response::from_status(StatusCode::BAD_REQUEST)
+    Ok(Response::from_status(StatusCode::BAD_REQUEST)
         .with_content_type(mime::TEXT_HTML)
-        .with_body("Could not extract base64 data"));
+        .with_body("Could not extract base64 data"))
 }
 
 pub fn delay(req: &Request, body: String) -> Result<Response, Error> {
@@ -74,7 +74,7 @@ pub fn delay(req: &Request, body: String) -> Result<Response, Error> {
             .with_body(body));
     }
 
-    return Ok(Response::from_status(StatusCode::NOT_FOUND)
+    Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::TEXT_HTML))
 }
 
@@ -88,7 +88,7 @@ pub fn delay(req: &Request, body: String) -> Result<Response, Error> {
 )]
 /// Returns a delayed response (max 10s)
 pub fn delay_get(req: &Request) -> Result<Response, Error> {
-    return delay(req, req_to_json(req));
+    delay(req, req_to_json(req))
 }
 
 #[utoipa::path(
@@ -102,7 +102,7 @@ pub fn delay_get(req: &Request) -> Result<Response, Error> {
 /// Returns a delayed response (max 10s)
 pub fn delay_post(req: &mut Request) -> Result<Response, Error> {
     let body = req_with_body_to_json(req);
-    return delay(req, body);
+    delay(req, body)
 }
 
 #[utoipa::path(
@@ -129,6 +129,6 @@ pub fn bytes(req: &Request) -> Result<Response, Error> {
             .with_body_octet_stream(&resp));
     }
 
-    return Ok(Response::from_status(StatusCode::NOT_FOUND)
+    Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::APPLICATION_OCTET_STREAM))
 }
