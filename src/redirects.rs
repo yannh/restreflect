@@ -49,3 +49,17 @@ pub fn relative_redirect(req: &Request) -> Result<Response, Error> {
 pub fn redirect(req: &Request) -> Result<Response, Error> {
     relative_redirect(req)
 }
+
+#[test]
+fn test_relative_redirect() {
+    let req = &fastly::Request::from_client()
+        .with_path("/relative-redirect/3");
+    let resp = redirect(req);
+    assert!(resp.is_ok());
+    let resp = resp.unwrap();
+    assert_eq!(resp.get_status(), StatusCode::FOUND);
+    assert_eq!(resp.get_content_type().unwrap(), mime::TEXT_HTML_UTF_8);
+    let location = resp.get_header("location");
+    assert!(location.is_some());
+    assert_eq!(location.unwrap(), "/relative-redirect/2");
+}
