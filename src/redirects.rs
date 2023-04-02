@@ -63,6 +63,6 @@ mod test {
         let resp = resp.unwrap();
         assert_eq!(resp.get_status(), StatusCode::FOUND);
         assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
-        assert_eq!(resp.get_header("location"), Some(&HeaderValue::from_static("/relative-redirect/redirect/2")));
+        assert_eq!(resp.get_header("location"), Some(&HeaderValue::from_static("/relative-redirect/2")));
     }
 }
