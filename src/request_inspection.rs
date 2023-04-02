@@ -1,6 +1,7 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
+use serde::{Deserialize};
 use crate::utils::req_headers;
 
 #[utoipa::path(
@@ -59,4 +60,86 @@ pub fn headers(req: &Request) -> Result<Response, Error> {
     Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap_or_default()))
+}
+
+#[cfg(test)]
+mod test {
+    use std::collections::HashMap;
+    use super::*;
+
+    #[test]
+    fn test_user_agent() {
+        #[derive(Debug, Deserialize, PartialEq)]
+        struct SerdeBody {
+            #[serde(alias = "user-agent")]
+            useragent: String,
+        }
+
+        let req = &Request::from_client()
+            .with_header("user-agent", "Microsoft Explorer 6")
+            .with_path("/user-agent");
+        let resp = user_agent(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+
+        let body = resp.into_body_str();
+        let m: SerdeBody = serde_json::from_str(body.as_str()).unwrap();
+        let expect = SerdeBody {
+            useragent: String::from("Microsoft Explorer 6")
+        };
+        assert_eq!(m, expect);
+    }
+
+    #[test]
+    fn test_ip_success() {
+        #[derive(Debug, Deserialize, PartialEq)]
+        struct SerdeBody {
+            ip: String,
+        }
+
+        let req = &Request::from_client()
+            .with_path("/ip");
+        let resp = ip(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+
+        let body = resp.into_body_str();
+        let m: SerdeBody = serde_json::from_str(body.as_str()).unwrap();
+        let expect = SerdeBody {
+            ip: String::from("127.0.0.1")
+        };
+        assert_eq!(m, expect);
+    }
+
+    #[test]
+    fn test_headers_success() {
+        #[derive(Debug, Deserialize, PartialEq)]
+        struct SerdeBody {
+            headers: HashMap<String, String>,
+        }
+
+        let req = &Request::from_client()
+            .with_header("foo", "bar")
+            .with_header("bee", "baz")
+            .with_path("/headers");
+        let resp = headers(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+
+        let body = resp.into_body_str();
+        let m: SerdeBody = serde_json::from_str(body.as_str()).unwrap();
+        let expect = SerdeBody {
+            headers: [
+                (String::from("foo"), String::from("bar")),
+                (String::from("bee"), String::from("baz"))
+            ].iter().cloned().collect()
+        };
+        assert_eq!(m, expect);
+    }
 }
