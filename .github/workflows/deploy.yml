@@ -15,8 +15,17 @@ jobs:
           toolchain: 1.66.0
           target: wasm32-wasi # WebAssembly target
 
+      - name: Install cargo-nextest
+        uses: baptiste0928/cargo-install@v1
+        with:
+          crate: cargo-nextest
+          locked: true
+
       - name: Install wasm-strip
         run: sudo apt install -y wabt
+
+      - name: Run tests
+        run: cargo nextest run
 
       - name: Deploy to Compute@Edge
         uses: fastly/compute-actions@v4
