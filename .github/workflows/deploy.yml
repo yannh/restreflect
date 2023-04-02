@@ -16,7 +16,7 @@ jobs:
           target: wasm32-wasi # WebAssembly target
 
       - name: Install cargo-nextest
-        uses: baptiste0928/cargo-install@v1
+        uses: baptiste0928/cargo-install@v2
         with:
           crate: cargo-nextest
           args: "--locked"
