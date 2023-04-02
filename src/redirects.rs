@@ -55,8 +55,8 @@ mod test {
     use super::*;
     use fastly::http::HeaderValue;
     #[test]
-    fn test_relative_redirect() {
-        let req = &fastly::Request::from_client()
+    fn test_relative_redirect_success() {
+        let req = &Request::from_client()
             .with_path("/relative-redirect/3");
         let resp = redirect(req);
         assert!(resp.is_ok());
@@ -64,5 +64,16 @@ mod test {
         assert_eq!(resp.get_status(), StatusCode::FOUND);
         assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
         assert_eq!(resp.get_header("location"), Some(&HeaderValue::from_static("/relative-redirect/2")));
+    }
+
+    #[test]
+    fn test_relative_redirect_too_many_redirects() {
+        let req = &Request::from_client()
+            .with_path("/relative-redirect/15");
+        let resp = redirect(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::NOT_FOUND);
+        assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
     }
 }

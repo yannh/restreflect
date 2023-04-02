@@ -121,3 +121,52 @@ pub fn patch(req: &mut Request) -> Result<Response, Error> {
 pub fn delete(req: &Request) -> Result<Response, Error> {
     rr_http_statuses(req)
 }
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    #[test]
+    fn test_get_200() {
+        let req = &Request::from_client()
+            .with_path("/status/200");
+        let resp = get(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
+    }
+
+    #[test]
+    fn test_get_500() {
+        let req = &Request::from_client()
+            .with_path("/status/500");
+        let resp = get(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::INTERNAL_SERVER_ERROR);
+        assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
+    }
+
+    #[test]
+    fn test_post_302() {
+        let mut req = Request::from_client()
+            .with_path("/status/302");
+        let resp = post(&mut req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::FOUND);
+        assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
+    }
+
+    #[test]
+    fn test_post_non_existing() {
+        let mut req = Request::from_client()
+            .with_path("/status/9999");
+        let resp = post(&mut req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::NOT_FOUND);
+        assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
+    }
+}
