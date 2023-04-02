@@ -1,5 +1,5 @@
 [package]
-name = "RESTReflect"
+name = "rest_reflect"
 version = "0.0.1"
 authors = ["Yann Hamon <yann+nospam@mandragor.org>"]
 edition = "2018"
