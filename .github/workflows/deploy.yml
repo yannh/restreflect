@@ -19,13 +19,11 @@ jobs:
         uses: baptiste0928/cargo-install@v2
         with:
           crate: cargo-nextest
-          args: "--locked"
 
       - name: Install cargo-nextest
         uses: baptiste0928/cargo-install@v2
         with:
           crate: viceroy
-          args: "--locked"
 
       - name: Install wasm-strip
         run: sudo apt install -y wabt
