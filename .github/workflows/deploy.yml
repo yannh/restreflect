@@ -16,14 +16,10 @@ jobs:
           target: wasm32-wasi # WebAssembly target
 
       - name: Install cargo-nextest
-        uses: baptiste0928/cargo-install@v2
-        with:
-          crate: cargo-nextest
+        run: curl -Ls https://get.nexte.st/latest/linux | sudo tar zxf - -C /usr/local/bin
 
       - name: Install viceroy
-        uses: baptiste0928/cargo-install@v2
-        with:
-          crate: viceroy
+        run:  curl -Ls https://github.com/fastly/Viceroy/releases/download/v0.4.2/viceroy_v0.4.2_linux-amd64.tar.gz  | sudo tar zxf - -C /usr/local/bin
 
       - name: Install wasm-strip
         run: sudo apt install -y wabt
