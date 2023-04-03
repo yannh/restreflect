@@ -25,7 +25,7 @@ jobs:
         run: sudo apt install -y wabt
 
       - name: Run tests
-        run: cargo nextest run
+        run: cargo nextest run --release
 
       - name: Deploy to Compute@Edge
         uses: fastly/compute-actions@v4
