@@ -140,3 +140,24 @@ pub fn deny(_: &Request) -> Result<Response, Error> {
 pub fn encoding_utf8(_: &Request) -> Result<Response, Error> {
     crate::assets::serve("utf8.txt", mime::TEXT_PLAIN)
 }
+
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_deflate_with_valid_request() {
+        let req = &Request::from_client()
+            .with_path("/deflate?foo=bar");
+
+        let resp = deflate(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_header("content-type").unwrap(), "application/json");
+        assert_eq!(resp.get_header("content-encoding").unwrap(), "deflate");
+    }
+}
