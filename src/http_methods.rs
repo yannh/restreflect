@@ -79,3 +79,39 @@ pub fn delete(req: &Request) -> Result<Response, Error> {
     http_methods(req)
 }
 
+
+
+#[cfg(test)]
+mod test {
+    use super::*;
+    use serde_json::Value;
+
+    #[test]
+    fn test_get() {
+        let req = &Request::from_client()
+            .with_path("/get");
+        let resp = get(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+    }
+
+    #[test]
+    fn test_get_with_parameters() {
+        let req = &Request::from_client()
+            .with_path("/get")
+            .with_query_str("foo=bar&fud=baz");
+        let resp = get(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+
+        let body = resp.into_body_str();
+        let v: Value = serde_json::from_str(body.as_str()).unwrap();
+        assert_eq!(v["args"]["foo"], "bar");
+        assert_eq!(v["args"]["fud"], "baz");
+        assert_eq!(v["url"], "http://example.com/get?foo=bar&fud=baz");
+    }
+}

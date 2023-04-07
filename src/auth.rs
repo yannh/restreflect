@@ -1,6 +1,6 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
-use serde_json::{json, to_string_pretty, Value};
+use serde_json::{json, to_string_pretty};
 use regex::Regex;
 
 #[utoipa::path(
@@ -92,6 +92,7 @@ pub fn bearer(req: &Request) -> Result<Response, Error> {
 #[cfg(test)]
 mod test {
     use super::*;
+    use serde_json::Value;
 
     #[test]
     fn test_basic_auth_success() {
