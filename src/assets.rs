@@ -43,7 +43,7 @@ pub fn serve(path: &str, mt: mime::Mime) -> Result<Response, Error> {
     match Asset::get(path) {
         Some(asset) => Ok(Response::from_status(StatusCode::OK)
             .with_body_octet_stream(asset.data.as_ref())
-            .with_content_type(file_mimetype(path, mt))),
+            .with_content_type(mt)),
 
         None => not_found,
     }

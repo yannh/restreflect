@@ -160,4 +160,31 @@ mod tests {
         assert_eq!(resp.get_header("content-type").unwrap(), "application/json");
         assert_eq!(resp.get_header("content-encoding").unwrap(), "deflate");
     }
+
+    #[test]
+    fn test_json() {
+        let req = &Request::from_client()
+            .with_path("/json");
+
+        let resp = json(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_header("content-type").unwrap(), "application/json");
+        assert_eq!(resp.into_body_str(), "{\n  \"slideshow\": {\n    \"author\": \"Yours Truly\", \n    \"date\": \"date of publication\", \n    \"slides\": [\n      {\n        \"title\": \"Wake up to WonderWidgets!\", \n        \"type\": \"all\"\n      }, \n      {\n        \"items\": [\n          \"Why <em>WonderWidgets</em> are great\", \n          \"Who <em>buys</em> WonderWidgets\"\n        ], \n        \"title\": \"Overview\", \n        \"type\": \"all\"\n      }\n    ], \n    \"title\": \"Sample Slide Show\"\n  }\n}\n");
+    }
+
+    #[test]
+    fn test_xml() {
+        let req = &Request::from_client()
+            .with_path("/xml");
+
+        let resp = xml(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_header("content-type").unwrap(), "application/xml");
+    }
 }
