@@ -15,7 +15,7 @@ use regex::Regex;
 )]
 /// Relatively 302 redirects n times.
 pub fn relative_redirect(req: &Request) -> Result<Response, Error> {
-    let caps = Regex::new(r"/relative-redirect/(\d{1})$")?
+    let caps = Regex::new(r"/(?:relative-)?redirect/(\d{1})$")?
         .captures(req.get_path());
     if let Some(caps) = caps {
         let n = caps.get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
@@ -58,7 +58,7 @@ mod test {
     fn test_relative_redirect_success() {
         let req = &Request::from_client()
             .with_path("/relative-redirect/3");
-        let resp = redirect(req);
+        let resp = relative_redirect(req);
         assert!(resp.is_ok());
         let resp = resp.unwrap();
         assert_eq!(resp.get_status(), StatusCode::FOUND);
@@ -70,10 +70,22 @@ mod test {
     fn test_relative_redirect_too_many_redirects() {
         let req = &Request::from_client()
             .with_path("/relative-redirect/15");
-        let resp = redirect(req);
+        let resp = relative_redirect(req);
         assert!(resp.is_ok());
         let resp = resp.unwrap();
         assert_eq!(resp.get_status(), StatusCode::NOT_FOUND);
         assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
+    }
+
+    #[test]
+    fn test_redirect() {
+        let req = &Request::from_client()
+            .with_path("/redirect/5");
+        let resp = redirect(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::FOUND);
+        assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
+        assert_eq!(resp.get_header("location"), Some(&HeaderValue::from_static("/relative-redirect/4")));
     }
 }
