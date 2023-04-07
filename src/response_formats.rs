@@ -112,7 +112,7 @@ pub fn robots_txt(_: &Request) -> Result<Response, Error> {
 /// Returns a simple XML document.
 pub fn xml(_: &Request) -> Result<Response, Error> {
     let mime_xml: mime::Mime = "application/xml".parse().unwrap_or(mime::APPLICATION_OCTET_STREAM);
-    crate::assets::serve("robots.txt", mime_xml)
+    crate::assets::serve("xml.xml", mime_xml)
 }
 
 #[utoipa::path(
@@ -178,6 +178,7 @@ mod tests {
     #[test]
     fn test_xml() {
         let req = &Request::from_client()
+            .with_header("accept", "*/*")
             .with_path("/xml");
 
         let resp = xml(req);
@@ -186,5 +187,36 @@ mod tests {
 
         assert_eq!(resp.get_status(), StatusCode::OK);
         assert_eq!(resp.get_header("content-type").unwrap(), "application/xml");
+        assert_eq!(resp.into_body_str(), "<?xml version='1.0' encoding='us-ascii'?>\n\n<!--  A SAMPLE set of slides  -->\n\n<slideshow \n    title=\"Sample Slide Show\"\n    date=\"Date of publication\"\n    author=\"Yours Truly\"\n    >\n\n    <!-- TITLE SLIDE -->\n    <slide type=\"all\">\n      <title>Wake up to WonderWidgets!</title>\n    </slide>\n\n    <!-- OVERVIEW -->\n    <slide type=\"all\">\n        <title>Overview</title>\n        <item>Why <em>WonderWidgets</em> are great</item>\n        <item/>\n        <item>Who <em>buys</em> WonderWidgets</item>\n    </slide>\n\n</slideshow>");
+    }
+
+    #[test]
+    fn test_robots_txt() {
+        let req = &Request::from_client()
+            .with_header("accept", "*/*")
+            .with_path("/robots");
+
+        let resp = robots_txt(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_header("content-type").unwrap(), "text/plain");
+        assert_eq!(resp.into_body_str(), "User-agent: *\nDisallow: /deny\n");
+    }
+
+    #[test]
+    fn test_deny() {
+        let req = &Request::from_client()
+            .with_header("accept", "text/plain")
+            .with_path("/deny");
+
+        let resp = deny(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_header("content-type").unwrap(), "text/plain");
+        assert_eq!(resp.into_body_str(), "\n          .-''''''-.\n        .' _      _ '.\n       /   O      O   \\\n      :                :\n      |                |\n      :       __       :\n       \\  .-\"`  `\"-.  /\n        '.          .'\n          '-......-'\n     YOU SHOULDN'T BE HERE\n");
     }
 }
