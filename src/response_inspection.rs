@@ -99,3 +99,39 @@ pub fn etag(req: &Request) -> Result<Response, Error> {
     Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::APPLICATION_JSON))
 }
+
+
+#[cfg(test)]
+mod test {
+    use fastly::http;
+    use super::*;
+
+    #[test]
+    fn test_response_headers_get() {
+        let req = &Request::from_client()
+            .with_query_str("foo=bar&fud=baz")
+            .with_path("/response-headers");
+        let resp = response_headers_get(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+        assert_eq!(resp.get_header_str("foo"), Some("bar"));
+        assert_eq!(resp.get_header_str("fud"), Some("baz"));
+    }
+
+    #[test]
+    fn test_response_headers_post() {
+        let req = &Request::from_client()
+            .with_method(http::Method::POST)
+            .with_query_str("foo=bar&fud=baz")
+            .with_path("/response-headers");
+        let resp = response_headers_post(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+        assert_eq!(resp.get_header_str("foo"), Some("bar"));
+        assert_eq!(resp.get_header_str("fud"), Some("baz"));
+    }
+}
