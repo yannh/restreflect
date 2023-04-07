@@ -1,5 +1,5 @@
 use fastly::http::StatusCode;
-use fastly::{Error, mime, Request, Response};
+use fastly::{Error, http, mime, Request, Response};
 use crate::utils::{req_to_json, req_with_body_to_json};
 
 fn http_methods(req: &Request) -> Result<Response, Error> {
@@ -24,6 +24,11 @@ fn http_methods_mut(req: &mut Request) -> Result<Response, Error> {
 )]
 /// The request's query parameter
 pub fn get(req: &Request) -> Result<Response, Error> {
+    if req.get_method() != http::Method::GET {
+        return Ok(Response::from_status(StatusCode::METHOD_NOT_ALLOWED)
+            .with_content_type(mime::TEXT_HTML_UTF_8))
+    }
+
     http_methods(req)
 }
 
@@ -37,6 +42,11 @@ pub fn get(req: &Request) -> Result<Response, Error> {
 )]
 /// The request's POST parameter
 pub fn post(req: &mut Request) -> Result<Response, Error> {
+    if req.get_method() != http::Method::POST {
+        return Ok(Response::from_status(StatusCode::METHOD_NOT_ALLOWED)
+            .with_content_type(mime::TEXT_HTML_UTF_8))
+    }
+
     http_methods_mut(req)
 }
 
@@ -50,6 +60,11 @@ pub fn post(req: &mut Request) -> Result<Response, Error> {
 )]
 /// The request's PUT parameter
 pub fn put(req: &mut Request) -> Result<Response, Error> {
+    if req.get_method() != http::Method::PUT {
+        return Ok(Response::from_status(StatusCode::METHOD_NOT_ALLOWED)
+            .with_content_type(mime::TEXT_HTML_UTF_8))
+    }
+
     http_methods(req)
 }
 
@@ -63,7 +78,12 @@ pub fn put(req: &mut Request) -> Result<Response, Error> {
 )]
 /// The request's PATCH parameter
 pub fn patch(req: &mut Request) -> Result<Response, Error> {
-    http_methods(req)
+    if req.get_method() != http::Method::PATCH {
+        return Ok(Response::from_status(StatusCode::METHOD_NOT_ALLOWED)
+            .with_content_type(mime::TEXT_HTML_UTF_8))
+    }
+
+    return http_methods(req)
 }
 
 #[utoipa::path(
@@ -76,7 +96,12 @@ pub fn patch(req: &mut Request) -> Result<Response, Error> {
 )]
 /// The request's DELETE parameter
 pub fn delete(req: &Request) -> Result<Response, Error> {
-    http_methods(req)
+    if req.get_method() != http::Method::DELETE {
+        return Ok(Response::from_status(StatusCode::METHOD_NOT_ALLOWED)
+            .with_content_type(mime::TEXT_HTML_UTF_8))
+    }
+
+    return http_methods(req)
 }
 
 
@@ -114,4 +139,29 @@ mod test {
         assert_eq!(v["args"]["fud"], "baz");
         assert_eq!(v["url"], "http://example.com/get?foo=bar&fud=baz");
     }
+
+    #[test]
+    fn test_delete_on_get_endpoint() {
+        let req = &Request::from_client()
+            .with_method(http::Method::DELETE)
+            .with_path("/get");
+        let resp = get(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::METHOD_NOT_ALLOWED);
+        assert_eq!(resp.get_content_type(), Some(mime::TEXT_HTML_UTF_8));
+    }
+
+    #[test]
+    fn test_delete() {
+        let req = &Request::from_client()
+            .with_method(http::Method::DELETE)
+            .with_path("/delete");
+        let resp = delete(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+    }
+
 }
