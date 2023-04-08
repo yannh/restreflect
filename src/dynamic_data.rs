@@ -20,8 +20,6 @@ pub fn uuid(_: &Request) -> Result<Response, Error> {
     let resp = json!({
         "uuid": Uuid::new_v4().to_string(),
     });
-    let ten_millis = time::Duration::from_millis(10);
-    thread::sleep(ten_millis);
     Ok(Response::from_status(StatusCode::OK)
         .with_content_type(mime::APPLICATION_JSON)
         .with_body(to_string_pretty(&resp).unwrap_or_default()))
@@ -131,4 +129,36 @@ pub fn bytes(req: &Request) -> Result<Response, Error> {
 
     Ok(Response::from_status(StatusCode::NOT_FOUND)
         .with_content_type(mime::APPLICATION_OCTET_STREAM))
+}
+#[cfg(test)]
+mod test {
+    use serde_json::Value;
+    use super::*;
+
+    #[test]
+    fn test_uuid() {
+        let req = &Request::from_client()
+            .with_path("/uuid");
+        let resp = uuid(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+        let m:Value = serde_json::from_str(resp.into_body_str().as_str()).unwrap();
+        let my_uuid = Uuid::parse_str(m["uuid"].as_str().unwrap());
+        assert!(my_uuid.is_ok())
+    }
+
+
+    #[test]
+    fn test_base64() {
+        let req = &Request::from_client()
+            .with_path("/base64/Zm9vYmFy"); // echo -n foobar | base64
+        let resp = base64(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+        assert_eq!(resp.into_body_str().as_str(), "foobar");
+    }
 }
