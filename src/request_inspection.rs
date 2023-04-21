@@ -88,6 +88,72 @@ pub fn http_version(req: &Request) -> Result<Response, Error> {
         .with_body(to_string_pretty(&resp).unwrap_or_default()))
 }
 
+
+#[utoipa::path(
+    get,
+    path = "/http-version",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The requests HTTP version", content_type = "application/json")
+    )
+)]
+/// Return the incoming request's HTTP version
+pub fn http_version_get(req: &Request) -> Result<Response, Error> {
+    http_version(req)
+}
+
+#[utoipa::path(
+    post,
+    path = "/http-version",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The requests HTTP version", content_type = "application/json")
+    )
+)]
+/// Return the incoming request's HTTP version
+pub fn http_version_post(req: &Request) -> Result<Response, Error> {
+    http_version(req)
+}
+
+#[utoipa::path(
+    put,
+    path = "/http-version",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The requests HTTP version", content_type = "application/json")
+    )
+)]
+/// Return the incoming request's HTTP version
+pub fn http_version_put(req: &Request) -> Result<Response, Error> {
+    http_version(req)
+}
+
+#[utoipa::path(
+    patch,
+    path = "/http-version",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The requests HTTP version", content_type = "application/json")
+    )
+)]
+/// Return the incoming request's HTTP version
+pub fn http_version_patch(req: &Request) -> Result<Response, Error> {
+    http_version(req)
+}
+
+#[utoipa::path(
+    delete,
+    path = "/http-version",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The requests HTTP version", content_type = "application/json")
+    )
+)]
+/// Return the incoming request's HTTP version
+pub fn http_version_delete(req: &Request) -> Result<Response, Error> {
+    http_version(req)
+}
+
 #[cfg(test)]
 mod test {
     use std::collections::HashMap;
