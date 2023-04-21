@@ -1,5 +1,5 @@
 use fastly::http::StatusCode;
-use fastly::{Error, http, mime, Request, Response};
+use fastly::{Error, mime, Request, Response};
 use crate::utils::{req_to_json, req_with_body_to_json};
 
 fn http_methods(req: &Request) -> Result<Response, Error> {

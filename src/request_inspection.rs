@@ -1,7 +1,6 @@
 use fastly::http::{StatusCode, Version};
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
-use serde::{Deserialize};
 use crate::utils::req_headers;
 
 #[utoipa::path(
@@ -79,7 +78,8 @@ pub fn http_version(req: &Request) -> Result<Response, Error> {
         Version::HTTP_11 => "1.1",
         Version::HTTP_2 => "2",
         Version::HTTP_3 => "3",
-    };,
+        _ => "unknown",
+    }
         });
 
     Ok(Response::from_status(StatusCode::OK)
