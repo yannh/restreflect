@@ -1,4 +1,4 @@
-use fastly::http::StatusCode;
+use fastly::http::{StatusCode, Version};
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
 use serde::{Deserialize};
@@ -55,6 +55,31 @@ pub fn ip(req: &Request) -> Result<Response, Error> {
 pub fn headers(req: &Request) -> Result<Response, Error> {
     let resp = json!({
             "headers": req_headers(req),
+        });
+
+    Ok(Response::from_status(StatusCode::OK)
+        .with_content_type(mime::APPLICATION_JSON)
+        .with_body(to_string_pretty(&resp).unwrap_or_default()))
+}
+
+#[utoipa::path(
+    get,
+    path = "/http-version",
+    tag = "Request inspection",
+    responses(
+        (status = 200, description = "The requests HTTP version", content_type = "application/json")
+    )
+)]
+/// Return the incoming request's HTTP headers
+pub fn http_version(req: &Request) -> Result<Response, Error> {
+    let resp = json!({
+            "http_version": match req.get_version() {
+        Version::HTTP_09 => "0.9",
+        Version::HTTP_10 => "1.0",
+        Version::HTTP_11 => "1.1",
+        Version::HTTP_2 => "2",
+        Version::HTTP_3 => "3",
+    };,
         });
 
     Ok(Response::from_status(StatusCode::OK)
