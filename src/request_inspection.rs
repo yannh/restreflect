@@ -1,6 +1,7 @@
 use fastly::http::{StatusCode, Version};
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
+use serde::{Deserialize};
 use crate::utils::req_headers;
 
 #[utoipa::path(
