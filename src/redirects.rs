@@ -20,12 +20,13 @@ pub fn absolute_redirect(req: &Request) -> Result<Response, Error> {
     if let Some(caps) = caps {
         let n = caps.get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
         let url = req.get_url();
+        let base_url = format!("{}://{}/", url.scheme(), url.host_str().unwrap_or_default());
 
         let redirect_to = {
             if n > 1 {
-                format!("{}://{}/absolute-redirect/{}", url.scheme(), url.host_str().unwrap_or_default(), n-1)
+                format!("{}/absolute-redirect/{}", base_url, n-1)
             } else {
-                format!("{}://{}/get", url.scheme(), url.host_str().unwrap_or_default())
+                format!("{}/get", base_url)
             }
         };
 
