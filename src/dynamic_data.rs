@@ -121,7 +121,7 @@ pub fn bytes(req: &Request) -> Result<Response, Error> {
     if let Some(caps) = caps {
         let n = caps.get(1).map_or(100, |m| m.as_str().parse::<usize>().unwrap_or(100));
         let mut resp:Vec<u8> = vec![0u8; n];
-        getrandom::getrandom(&mut resp)?;
+        getrandom::fill(&mut resp)?;
         return Ok(Response::from_status(StatusCode::OK)
             .with_content_type(mime::APPLICATION_OCTET_STREAM)
             .with_body_octet_stream(&resp));

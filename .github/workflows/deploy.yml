@@ -10,24 +10,33 @@ jobs:
       - uses: actions/checkout@v3
 
       - name: Install Rust toolchain
-        uses: actions-rs/toolchain@v1
+        uses: dtolnay/rust-toolchain@stable
         with:
-          toolchain: 1.66.0
-          target: wasm32-wasi # WebAssembly target
+          targets: wasm32-wasip1 # WebAssembly target
 
       - name: Install cargo-nextest
         run: curl -Ls https://get.nexte.st/latest/linux | sudo tar zxf - -C /usr/local/bin
 
       - name: Install viceroy
-        run:  curl -Ls https://github.com/fastly/Viceroy/releases/download/v0.4.2/viceroy_v0.4.2_linux-amd64.tar.gz  | sudo tar zxf - -C /usr/local/bin
+        run:  curl -Ls https://github.com/fastly/Viceroy/releases/download/v0.13.0/viceroy_v0.13.0_linux-amd64.tar.gz  | sudo tar zxf - -C /usr/local/bin
 
       - name: Install wasm-strip
         run: sudo apt install -y wabt
 
       - name: Run tests
-        run: cargo nextest run --release
+        run: make test
 
-      - name: Deploy to Compute@Edge
-        uses: fastly/compute-actions@v4
+      - name: Set up Fastly CLI
+        uses: fastly/compute-actions/setup@v11
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build Compute Package
+        uses: fastly/compute-actions/build@v11
+        with:
+          verbose: true
+
+      - name: Deploy Compute Package
+        uses: fastly/compute-actions/deploy@v11
         env:
           FASTLY_API_TOKEN: ${{ secrets.FASTLY_API_TOKEN }}

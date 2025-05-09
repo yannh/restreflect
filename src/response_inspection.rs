@@ -5,6 +5,32 @@ use std::collections::HashMap;
 
 #[utoipa::path(
     get,
+    path = "/cache/{value}",
+    tag = "Response inspection",
+    params(
+        ("value" = u16, Path, description = "cache duration"),
+    ),
+    responses(
+        (status = 200, description = "Cache value", content_type = "application/json")
+    )
+)]
+// Sets a cache-control header for n seconds
+pub fn cache_value(req: &Request) -> Result<Response, Error> {
+    let caps = Regex::new(r"/cache/(\d{1,2})$")?
+        .captures(req.get_path());
+    if let Some(caps) = caps {
+        let cache_value = caps.get(1).map(|m| m.as_str()).unwrap();
+        return Ok(Response::from_status(StatusCode::OK)
+            .with_header("Cache-Control", format!("public, max-age={}", cache_value))
+            .with_content_type(mime::APPLICATION_JSON));
+    }
+
+    Ok(Response::from_status(StatusCode::NOT_FOUND)
+        .with_content_type(mime::APPLICATION_JSON))
+}
+
+#[utoipa::path(
+    get,
     path = "/response-headers",
     tag = "Response inspection",
     params(
@@ -105,6 +131,18 @@ pub fn etag(req: &Request) -> Result<Response, Error> {
 mod test {
     use fastly::http;
     use super::*;
+
+    #[test]
+    fn test_cache_value() {
+        let req = &Request::from_client()
+            .with_path("/cache/23");
+        let resp = cache_value(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
+        assert_eq!(resp.get_header_str("cache-control"), Some("public, max-age=23"));
+    }
 
     #[test]
     fn test_response_headers_get() {

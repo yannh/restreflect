@@ -9,5 +9,5 @@ name = "RestReflect"
 service_id = "jTZ68CsnbVNYLzrnL2I1Q1"
 
 [scripts]
-  build = "cargo build --bin RestReflect --release --target wasm32-wasi --color always"
+  build = "cargo build --bin rest_reflect --release --target wasm32-wasip1 --color always"
   post_build = "wasm-strip bin/main.wasm"

@@ -13,6 +13,7 @@ use regex::Regex;
         (status = 302, description = "A redirection.", content_type = "text/html"),
     )
 )]
+// Absolutely 302 redirects n times.
 pub fn absolute_redirect(req: &Request) -> Result<Response, Error> {
     let caps = Regex::new(r"/absolute-redirect/(\d{1})$")?
         .captures(req.get_path());
@@ -20,7 +21,7 @@ pub fn absolute_redirect(req: &Request) -> Result<Response, Error> {
     if let Some(caps) = caps {
         let n = caps.get(1).map_or(404, |m| m.as_str().parse::<u16>().unwrap_or(404));
         let url = req.get_url();
-        let base_url = format!("{}://{}/", url.scheme(), url.host_str().unwrap_or_default());
+        let base_url = format!("{}://{}", url.scheme(), url.host_str().unwrap_or_default());
 
         let redirect_to = {
             if n > 1 {
