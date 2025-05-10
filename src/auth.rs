@@ -1,7 +1,7 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
-use regex::Regex;
+use regex_lite::Regex;
 use base64::{Engine as _, engine::general_purpose};
 
 #[utoipa::path(

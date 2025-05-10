@@ -1,5 +1,5 @@
 use fastly::http::{HeaderValue, StatusCode};
-use regex::Regex;
+use regex_lite::Regex;
 use fastly::{Error, mime, Request, Response};
 use std::collections::HashMap;
 

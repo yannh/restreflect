@@ -12,7 +12,7 @@ mod utils;
 
 use fastly::http::{Method, StatusCode};
 use fastly::{Error, mime, Request, Response};
-use regex::{Regex};
+use regex_lite::{Regex};
 use utoipa::OpenApi;
 
 #[derive(OpenApi)]

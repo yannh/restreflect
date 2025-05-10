@@ -3,7 +3,7 @@ use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
 use uuid::Uuid;
 use std::{thread, time};
-use regex::Regex;
+use regex_lite::Regex;
 use crate::utils::{req_to_json, req_with_body_to_json};
 use base64::{Engine as _, engine::general_purpose};
 

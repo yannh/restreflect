@@ -1,6 +1,6 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
-use regex::Regex;
+use regex_lite::Regex;
 
 #[utoipa::path(
     get,

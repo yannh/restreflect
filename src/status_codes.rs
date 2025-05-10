@@ -1,6 +1,6 @@
 use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
-use regex::Regex;
+use regex_lite::Regex;
 use rand::seq::SliceRandom;
 
 fn rr_http_statuses(req: &Request) -> Result<Response, Error> {
