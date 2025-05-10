@@ -2,6 +2,7 @@ use fastly::http::StatusCode;
 use fastly::{Error, mime, Request, Response};
 use serde_json::{json, to_string_pretty};
 use regex::Regex;
+use base64::{Engine as _, engine::general_purpose};
 
 #[utoipa::path(
     get,
@@ -29,7 +30,7 @@ pub fn basic_auth(req: &Request) -> Result<Response, Error> {
     }
 
     let enc_basic_auth = authorization.unwrap().to_str().unwrap_or_default().strip_prefix("Basic ").unwrap_or_default();
-    let dec_basic_auth = String::from_utf8(base64::decode(enc_basic_auth).unwrap_or(vec![])).unwrap_or_default();
+    let dec_basic_auth = String::from_utf8(general_purpose::STANDARD.decode(enc_basic_auth).unwrap_or(vec![])).unwrap_or_default();
     let credentials: Vec<&str> = dec_basic_auth.split(":").collect();
     if credentials.len() != 2 {
         return unauthorized;

@@ -4,8 +4,8 @@ use serde_json::{json, to_string_pretty};
 use uuid::Uuid;
 use std::{thread, time};
 use regex::Regex;
-use base64::decode;
 use crate::utils::{req_to_json, req_with_body_to_json};
+use base64::{Engine as _, engine::general_purpose};
 
 #[utoipa::path(
     get,
@@ -42,7 +42,7 @@ pub fn base64(req: &Request) -> Result<Response, Error> {
         .captures(req.get_path());
     if let Some(caps) = caps {
         let b64 = caps.get(1).map(|m| m.as_str().as_bytes()).unwrap();
-        return match decode(&b64) {
+        return match general_purpose::STANDARD.decode(&b64) {
             Ok(decoded) => Ok(Response::from_status(StatusCode::OK)
                 .with_content_type(mime::APPLICATION_JSON)
                 .with_body(decoded)),
