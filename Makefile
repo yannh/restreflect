@@ -6,4 +6,4 @@ test:
 
 .PHONY: build
 build:
-	cargo build --target wasm32-wasip1
+	fastly compute build -y
