@@ -1,5 +1,6 @@
 mod assets;
 mod auth;
+mod cookies;
 mod dynamic_data;
 mod http_methods;
 mod images;
@@ -19,6 +20,7 @@ use utoipa::OpenApi;
 #[openapi(
   paths(
     auth::bearer, auth::basic_auth,
+    cookies::get_cookies, cookies::set_cookie, cookies::delete_cookie,
     dynamic_data::uuid, dynamic_data::delay_get, dynamic_data::delay_post, dynamic_data::base64,
     dynamic_data::bytes,
     http_methods::delete, http_methods::get, http_methods::put, http_methods::post, http_methods::patch,
@@ -39,6 +41,7 @@ use utoipa::OpenApi;
   ),
   tags(
     (name = "Auth", description = "Auth methods"),
+    (name = "Cookies", description = "Cookie manipulation"),
     (name = "Dynamic data", description = "Generates random and dynamic data"),
     (name = "HTTP Methods", description = "Testing different HTTP verbs"),
     (name = "Redirects", description = "Returns different redirect responses"),
@@ -93,6 +96,9 @@ fn main(mut req: Request) -> Result<Response, Error> {
     use ReqHandler::*;
     let routes = vec![
         (Method::GET, Regex::new(r"/swagger\.json$")?, Handler(rr_swagger)),
+        (Method::GET, Regex::new(r"^/cookies$")?, Handler(cookies::get_cookies)),
+        (Method::GET, Regex::new(r"^/cookies/set/([^/]+)/([^/]+)$")?, Handler(cookies::set_cookie)),
+        (Method::GET, Regex::new(r"^/cookies/delete/([^/]+)$")?, Handler(cookies::delete_cookie)),
         (Method::GET, Regex::new(r"^/status/((\d{3},?)+)$")?, Handler(status_codes::get)),
         (Method::POST, Regex::new(r"^/status/(\d{3})$")?, MutHandler(status_codes::post)),
         (Method::PUT, Regex::new(r"^/status/(\d{3})$")?, MutHandler(status_codes::put)),
