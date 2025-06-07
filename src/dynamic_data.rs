@@ -161,4 +161,17 @@ mod test {
         assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_JSON));
         assert_eq!(resp.into_body_str().as_str(), "foobar");
     }
+
+    #[test]
+    fn test_bytes() {
+        let req = &Request::from_client()
+            .with_path("/bytes/42");
+        let resp = bytes(req);
+        assert!(resp.is_ok());
+        let resp = resp.unwrap();
+        assert_eq!(resp.get_status(), StatusCode::OK);
+        assert_eq!(resp.get_content_type(), Some(mime::APPLICATION_OCTET_STREAM));
+        let body = resp.into_body_bytes();
+        assert_eq!(body.len(), 42);
+    }
 }
