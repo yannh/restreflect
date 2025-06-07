@@ -48,10 +48,10 @@ pub fn get_cookies(req: &Request) -> Result<Response, Error> {
         ("value" = String, Path, description = "Value to set for the cookie")
     ),
     responses(
-        (status = 302, description = "Sets a cookie and redirects to /cookies", content_type = "application/json"),
+        (status = 200, description = "Sets a cookie and returns success status", content_type = "application/json"),
     )
 )]
-/// Sets a cookie and redirects to /cookies.
+/// Sets a cookie.
 pub fn set_cookie(req: &Request) -> Result<Response, Error> {
     use regex_lite::Regex;
 
@@ -62,9 +62,10 @@ pub fn set_cookie(req: &Request) -> Result<Response, Error> {
         let name = caps.get(1).map(|m| m.as_str()).unwrap_or("");
         let value = caps.get(2).map(|m| m.as_str()).unwrap_or("");
         
-        return Ok(Response::from_status(StatusCode::FOUND)
-            .with_header("Location", "/cookies")
-            .with_header("Set-Cookie", format!("{}={}; Path=/", name, value)));
+        return Ok(Response::from_status(StatusCode::OK)
+            .with_content_type(mime::APPLICATION_JSON)
+            .with_header("Set-Cookie", format!("{}={}; Path=/", name, value))
+            .with_body(to_string_pretty(&json!({"success": true})).unwrap_or_default()));
     }
 
     Ok(Response::from_status(StatusCode::BAD_REQUEST)
@@ -80,10 +81,10 @@ pub fn set_cookie(req: &Request) -> Result<Response, Error> {
         ("name" = String, Path, description = "Name of the cookie to delete")
     ),
     responses(
-        (status = 302, description = "Deletes a cookie and redirects to /cookies", content_type = "application/json"),
+        (status = 200, description = "Deletes a cookie and returns success status", content_type = "application/json"),
     )
 )]
-/// Deletes a cookie and redirects to /cookies.
+/// Deletes a cookie.
 pub fn delete_cookie(req: &Request) -> Result<Response, Error> {
     use regex_lite::Regex;
 
@@ -93,9 +94,10 @@ pub fn delete_cookie(req: &Request) -> Result<Response, Error> {
     if let Some(caps) = caps {
         let name = caps.get(1).map(|m| m.as_str()).unwrap_or("");
         
-        return Ok(Response::from_status(StatusCode::FOUND)
-            .with_header("Location", "/cookies")
-            .with_header("Set-Cookie", format!("{}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT", name)));
+        return Ok(Response::from_status(StatusCode::OK)
+            .with_content_type(mime::APPLICATION_JSON)
+            .with_header("Set-Cookie", format!("{}=; Path=/; Expires=Thu, 01 Jan 1970 00:00:00 GMT", name))
+            .with_body(to_string_pretty(&json!({"success": true})).unwrap_or_default()));
     }
 
     Ok(Response::from_status(StatusCode::BAD_REQUEST)
@@ -129,9 +131,11 @@ mod test {
         let resp = set_cookie(req);
         assert!(resp.is_ok());
         let resp = resp.unwrap();
-        assert_eq!(resp.get_status(), StatusCode::FOUND);
-        assert_eq!(resp.get_header_str("Location"), Some("/cookies"));
+        assert_eq!(resp.get_status(), StatusCode::OK);
         assert_eq!(resp.get_header_str("Set-Cookie"), Some("foo=bar; Path=/"));
+        let json_str = resp.into_body_str();
+        let json: serde_json::Value = serde_json::from_str(&json_str).unwrap();
+        assert_eq!(json["success"], true);
     }
 
     #[test]
@@ -141,9 +145,11 @@ mod test {
         let resp = delete_cookie(req);
         assert!(resp.is_ok());
         let resp = resp.unwrap();
-        assert_eq!(resp.get_status(), StatusCode::FOUND);
-        assert_eq!(resp.get_header_str("Location"), Some("/cookies"));
+        assert_eq!(resp.get_status(), StatusCode::OK);
         assert!(resp.get_header_str("Set-Cookie").unwrap().contains("foo="));
         assert!(resp.get_header_str("Set-Cookie").unwrap().contains("Expires="));
+        let json_str = resp.into_body_str();
+        let json: serde_json::Value = serde_json::from_str(&json_str).unwrap();
+        assert_eq!(json["success"], true);
     }
 }
